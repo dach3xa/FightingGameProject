@@ -494,6 +494,14 @@ PrefabInstance:
       propertyPath: m_audioClip
       value: 
       objectReference: {fileID: 8300000, guid: 4e349dc959014a845b9aa317d1c2b7f0, type: 3}
+    - target: {fileID: 3421947480990308568, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3421947480990308568, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 969390385
+      objectReference: {fileID: 0}
     - target: {fileID: 3621326756720605603, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.212
@@ -734,6 +742,10 @@ PrefabInstance:
     - target: {fileID: 8590692593756841702, guid: 102aea52cd6cd5e43ae803c7f30752ed, type: 3}
       propertyPath: m_Layer
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8590692593756841702, guid: 102aea52cd6cd5e43ae803c7f30752ed, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8590692593756841702, guid: 102aea52cd6cd5e43ae803c7f30752ed, type: 3}
       propertyPath: m_TagString
