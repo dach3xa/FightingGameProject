@@ -13,7 +13,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     protected GameObject ArmLeft;
     protected GameObject ArmRight;
 
-    protected GameObject ItemHolder;
+    [SerializeField] protected GameObject ItemHolder;
 
     [SerializeField] protected GameObject AudioHolder;
     [SerializeField] public GameObject ItemInHand { get; set; }
@@ -106,7 +106,6 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     public void OnGroundCheck(Collision2D collision)
     {
-        Debug.Log("checking landed on ground check");
         if (collision.gameObject.CompareTag("Ground"))
         {
             foreach (ContactPoint2D contact in collision.contacts)
@@ -185,6 +184,9 @@ public abstract class BaseCharacterController : MonoBehaviour
     //----Item animation events----
     protected void SetItemInHandActive()
     {
+        Debug.Log("setting item in hand active!");
+        Debug.Log(ItemInHand);
+        Debug.Log(ItemInHand.name);
         ItemInHand.SetActive(true);
     }
     //----Movement animation events----
@@ -206,7 +208,7 @@ public abstract class BaseCharacterController : MonoBehaviour
         }
     }
 
-    //---------------------Taking Weapon------------------------------
+    //---------------------Taking Item------------------------------
     protected void TakeItem(string itemName)
     {
         Debug.Log(itemName);

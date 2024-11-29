@@ -81,7 +81,6 @@ public class PlayerController : BaseCharacterController
         //Debug.Log(ItemInHand?.tag);
         if (IsHolding && ItemInHand.CompareTag("Weapon"))
         {
-            Debug.Log("Handling User Input!!");
             if (Input.GetMouseButtonDown(0))
             {
                 Debug.Log("AttackingPrimary!!");

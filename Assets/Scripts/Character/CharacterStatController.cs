@@ -91,8 +91,7 @@ public class CharacterStatController : MonoBehaviour
                 ChangeCurrentStatStateToDamaged();
                 break;
             case CurrentStatState.normal:
-                CharacterControllerScript.enabled = true;
-                this.statState = NewStatState;
+                ChangeCurrentStatStateToNormal();
                 break;
             case CurrentStatState.Dead:
                 ChangeCurrentStatStateToDead();
@@ -102,6 +101,12 @@ public class CharacterStatController : MonoBehaviour
     protected void ChangeCurrentStatStateToDamaged()
     {
         ResetAllCurrentAttackAnimations();
+
+        if (CharacterControllerScript.IsHolding)
+        {
+            CharacterControllerScript.ItemInHand.GetComponent<WeaponMelee>().enabled = false;
+        }
+
         animator.SetTrigger("Damaged");
         CharacterControllerScript.enabled = false;
         this.statState = CurrentStatState.Damaged;
@@ -112,6 +117,16 @@ public class CharacterStatController : MonoBehaviour
         AnimatorStateInfo animatorInfo = animator.GetCurrentAnimatorStateInfo(2);
         animator.Play("Holding");
         CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>().OnHolderDamaged();
+    }
+
+    protected void ChangeCurrentStatStateToNormal()
+    {
+        CharacterControllerScript.enabled = true;
+        if (CharacterControllerScript.IsHolding)
+        {
+            CharacterControllerScript.ItemInHand.GetComponent<WeaponMelee>().enabled = true;
+        }
+        this.statState = CurrentStatState.normal;
     }
 
     protected void ChangeCurrentStatStateToDead()

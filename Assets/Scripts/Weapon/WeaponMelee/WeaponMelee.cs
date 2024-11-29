@@ -48,10 +48,13 @@ public class WeaponMelee : MonoBehaviour
     protected float ActionCoolDownAttackSecondary = 1.4f;
     protected void Start()
     {
+        Holder = transform.root.gameObject;
+        HolderStatController = Holder.GetComponent<CharacterStatController>();
+        HolderController = Holder.GetComponent<BaseCharacterController>();
+        HoldersSortingGroup = Holder.GetComponent<SortingGroup>();
         HoldersAnimator = Holder.GetComponent<Animator>();
         HoldersSoundEffects = HolderController.SoundEffects;
     }
-
 
     protected void UpdateTimers()
     {
