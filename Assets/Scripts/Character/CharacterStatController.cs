@@ -100,7 +100,7 @@ public class CharacterStatController : MonoBehaviour
     }
     protected void ChangeCurrentStatStateToDamaged()
     {
-        ResetAllCurrentAttackAnimations();
+        CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>().OnHolderDamaged();
 
         if (CharacterControllerScript.IsHolding)
         {
@@ -110,13 +110,6 @@ public class CharacterStatController : MonoBehaviour
         animator.SetTrigger("Damaged");
         CharacterControllerScript.enabled = false;
         this.statState = CurrentStatState.Damaged;
-    }
-
-    protected void ResetAllCurrentAttackAnimations()
-    {
-        AnimatorStateInfo animatorInfo = animator.GetCurrentAnimatorStateInfo(2);
-        animator.Play("Holding");
-        CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>().OnHolderDamaged();
     }
 
     protected void ChangeCurrentStatStateToNormal()

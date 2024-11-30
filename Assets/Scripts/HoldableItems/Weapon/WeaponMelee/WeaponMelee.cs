@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
 
-public class WeaponMelee : MonoBehaviour
+public class WeaponMelee : HoldableItem
 {
     public enum CurrentStateOfWeapon
     {
@@ -13,14 +13,6 @@ public class WeaponMelee : MonoBehaviour
         AttackingSecondary,
         Blocking
     }
-    //info about Holder of this Weapon
-    [SerializeField] protected GameObject Holder;
-    [SerializeField] protected CharacterStatController HolderStatController;
-    [SerializeField] protected BaseCharacterController HolderController;
-    [SerializeField] protected SortingGroup HoldersSortingGroup;
-    [SerializeField] protected Animator HoldersAnimator;
-    [SerializeField] protected Dictionary<string, AudioSource> HoldersSoundEffects;
-
     //Weapon info
     [SerializeField] public CurrentStateOfWeapon currentState { get; set; }//change in future
     [SerializeField] protected float BaseAttackValue = 30f;
@@ -30,7 +22,7 @@ public class WeaponMelee : MonoBehaviour
 
     //for creating a dynamic collider
     [SerializeField] protected float WidthOfWeapon = 0.3f;
-    [SerializeField] protected float HieghtOfWeapon = 2f;
+    [SerializeField] protected float HeightOfWeapon = 2f;
     [SerializeField] protected float WeaponOffsetAngle = 90f;
      
     //not to hit repeatedly
@@ -48,18 +40,35 @@ public class WeaponMelee : MonoBehaviour
     protected float ActionCoolDownAttackSecondary = 1.4f;
     protected void Start()
     {
-        Holder = transform.root.gameObject;
-        HolderStatController = Holder.GetComponent<CharacterStatController>();
-        HolderController = Holder.GetComponent<BaseCharacterController>();
-        HoldersSortingGroup = Holder.GetComponent<SortingGroup>();
-        HoldersAnimator = Holder.GetComponent<Animator>();
-        HoldersSoundEffects = HolderController.SoundEffects;
+        base.Start();
     }
 
     protected void UpdateTimers()
     {
         ActionCoolDownTimer += Time.deltaTime;
         comboCoolDownTimer += Time.deltaTime;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+
+        // Draw the starting circle
+        Gizmos.DrawWireSphere(transform.position, WidthOfWeapon);
+
+        // Draw the ending circle
+        float offsetAngle = WeaponOffsetAngle;
+        float angle = transform.eulerAngles.z + offsetAngle; // Add an offset angle
+        Vector2 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+        Vector2 endPosition = new Vector2(transform.position.x,transform.position.y) + direction.normalized * HeightOfWeapon;
+        Gizmos.DrawWireSphere(endPosition, WidthOfWeapon);
+
+        // Draw lines connecting the two circles
+        Vector3 offset = Vector3.right * WidthOfWeapon; // This creates a perpendicular vector
+        Vector3 originRight = (Vector3)transform.position + offset;
+        Vector3 endRight = (Vector3)endPosition + offset;
+
+        Gizmos.DrawLine(transform.position + (Vector3)direction * WidthOfWeapon, (Vector3)endPosition + (Vector3)direction * WidthOfWeapon);
     }
 
     protected void CollisionWithWeaponInAttackStateCheck()
@@ -69,7 +78,8 @@ public class WeaponMelee : MonoBehaviour
             float offsetAngle = WeaponOffsetAngle;
             float angle = transform.eulerAngles.z + offsetAngle; // Add an offset angle
             Vector2 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-            RaycastHit2D EnemiesHit = Physics2D.CircleCast(transform.position, WidthOfWeapon, direction, HieghtOfWeapon, HolderController.EnemyLayer);
+            RaycastHit2D EnemiesHit = Physics2D.CircleCast(transform.position, WidthOfWeapon, direction, HeightOfWeapon, HolderController.EnemyLayer);
+
             if (EnemiesHit)
             {
                 CheckEnemyHit(EnemiesHit.collider);
@@ -101,10 +111,34 @@ public class WeaponMelee : MonoBehaviour
 
     public void OnHolderDamaged()
     {
-        Debug.Log("Holder was damaged!");
         currentComboAnimationAttackPrimary = 0;
-        ActionCoolDownTimer = -0.4f;
+        ActionCoolDownTimer = 0f;
         comboCoolDownTimer = 0;
+        currentState = CurrentStateOfWeapon.None;
+
+        ResetAllAnimationParameters();// except for isholding
+    }
+
+    protected void ResetAllAnimationParameters()
+    {
+        foreach (AnimatorControllerParameter parameter in HoldersAnimator.parameters)
+        {
+            switch (parameter.type)
+            {
+                case AnimatorControllerParameterType.Float:
+                    HoldersAnimator.SetFloat(parameter.name, 0f);
+                    break;
+                case AnimatorControllerParameterType.Int:
+                    HoldersAnimator.SetInteger(parameter.name, 0);
+                    break;
+                case AnimatorControllerParameterType.Bool:
+                    if(parameter.name != "IsHolding")
+                    {
+                        HoldersAnimator.SetBool(parameter.name, false);
+                    }
+                    break;
+            }
+        }
     }
 
     protected void ResetComboCheck()
@@ -130,7 +164,7 @@ public class WeaponMelee : MonoBehaviour
     }
     public void AttackSecondary()
     {
-        if (ActionCoolDownTimer > ActionCoolDownAttackSecondary && HolderStatController.Stamina > 20f * 0.8f && currentState == CurrentStateOfWeapon.None)
+        if (ActionCoolDownTimer >= ActionCoolDownAttackSecondary && HolderStatController.Stamina > 20f * 0.8f && currentState == CurrentStateOfWeapon.None)
         {
             HoldersAnimator.SetTrigger("WeaponMeleeSecondaryAttack");
 
@@ -157,7 +191,7 @@ public class WeaponMelee : MonoBehaviour
 
     public void Block()
     {
-        if (ActionCoolDownTimer > ActionCoolDownBlock && HolderStatController.Stamina > 0 && currentState == CurrentStateOfWeapon.None)
+        if (ActionCoolDownTimer >= ActionCoolDownBlock && HolderStatController.Stamina > 0 && currentState == CurrentStateOfWeapon.None)
         {
             HoldersAnimator.SetTrigger("Block");
             ActionCoolDownTimer = -0.3f;

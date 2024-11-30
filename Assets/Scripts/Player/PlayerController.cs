@@ -109,16 +109,15 @@ public class PlayerController : BaseCharacterController
     //------------------------------rotating body parts according to mouse position
     private void HandleRotate()
     {
-        mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);//getting mouse position in world
-        DirectionToMouse = new Vector2(mouseWorldPosition.x - transform.position.x, mouseWorldPosition.y - transform.position.y).normalized;//getting direction to mouse
-        angleToTarget = Mathf.Atan2(DirectionToMouse.y, DirectionToMouse.x) * Mathf.Rad2Deg;//getting the angle of direction in degrees
+        mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        DirectionToMouse = new Vector2(mouseWorldPosition.x - transform.position.x, mouseWorldPosition.y - transform.position.y).normalized;
+        angleToTarget = Mathf.Atan2(DirectionToMouse.y, DirectionToMouse.x) * Mathf.Rad2Deg;
 
-        //Debug.Log(angleToTarget);
-        if (DirectionToMouse.x < 0)  // If mouse is to the left
+        if (DirectionToMouse.x < 0) 
         {
             RotatePlayerSpritesLeft();
         }
-        else  // If mouse is to the right
+        else  
         {
             RotatePlayerSpritesRight();
         }
@@ -127,34 +126,44 @@ public class PlayerController : BaseCharacterController
     private void RotatePlayerSpritesLeft()
     {
         float angleToMouseCalculation = -(180 - angleToTarget);
+
         if (angleToMouseCalculation < -90)
         {
             angleToMouseCalculation = angleToMouseCalculation + 360;//dont ask me why this works(it does) 
         }
-        //Debug.Log("Rotating");
-        transform.localScale = new Vector3(-3, transform.localScale.y, transform.localScale.z);
-        Torso.transform.rotation = Quaternion.Euler(new Vector3(Torso.transform.rotation.x, Torso.transform.rotation.y, angleToMouseCalculation / (180 / maxTorsoRotation)));
-        Head.transform.rotation = Quaternion.Euler(new Vector3(Head.transform.rotation.x, Head.transform.rotation.y, angleToMouseCalculation / (180 / (maxHeadRotation + maxTorsoRotation))));
 
-        if (IsHolding)
-        {
-            ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angleToMouseCalculation / (180 / (maxHandRotation + maxTorsoRotation))));
-            ArmLeft.transform.rotation = Quaternion.Euler(new Vector3(ArmLeft.transform.rotation.x, ArmLeft.transform.rotation.y, angleToMouseCalculation / (180 / (maxHandRotation + maxTorsoRotation))));
-        }//rotating hands
+        transform.localScale = new Vector3(-3, transform.localScale.y, transform.localScale.z);
+
+        RotatePlayerSpriteBodyAndHead(angleToMouseCalculation);
+        RotatePlayerSpriteHands(angleToMouseCalculation);
     }
 
     private void RotatePlayerSpritesRight()
     {
-        // Face player sprite to the right
         transform.localScale = new Vector3(3, transform.localScale.y, transform.localScale.z);
-        Torso.transform.rotation = Quaternion.Euler(new Vector3(Torso.transform.rotation.x, Torso.transform.rotation.y, angleToTarget / (180 / maxTorsoRotation)));
-        Head.transform.rotation = Quaternion.Euler(new Vector3(Head.transform.rotation.x, Head.transform.rotation.y, angleToTarget / (180 / (maxHeadRotation + maxTorsoRotation))));
 
+        RotatePlayerSpriteBodyAndHead(angleToTarget);
+        RotatePlayerSpriteHands(angleToTarget);
+    }
+    private void RotatePlayerSpriteBodyAndHead(float angleToMouse)
+    {
+        Torso.transform.rotation = Quaternion.Euler(new Vector3(Torso.transform.rotation.x, Torso.transform.rotation.y, angleToMouse / (180 / maxTorsoRotation)));
+        Head.transform.rotation = Quaternion.Euler(new Vector3(Head.transform.rotation.x, Head.transform.rotation.y, angleToMouse / (180 / (maxHeadRotation + maxTorsoRotation))));
+    }
+
+    private void RotatePlayerSpriteHands(float angleToMouse)
+    {
         if (IsHolding)
         {
-            ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angleToTarget / (180 / (maxHandRotation + maxTorsoRotation))));
-            ArmLeft.transform.rotation = Quaternion.Euler(new Vector3(ArmLeft.transform.rotation.x, ArmLeft.transform.rotation.y, angleToTarget / (180 / (maxHandRotation + maxTorsoRotation))));
-        }//rotating hands
+            if (ItemInHand != null)
+            {
+                ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
+            }
+            if (ItemInHand.GetComponent<HoldableItem>().IsTwoHanded || ItemInHandLeft != null)
+            {
+                ArmLeft.transform.rotation = Quaternion.Euler(new Vector3(ArmLeft.transform.rotation.x, ArmLeft.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
+            }
+        }
     }
 
 

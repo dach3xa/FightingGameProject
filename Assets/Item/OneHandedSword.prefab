@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 864235613584301407}
   - component: {fileID: 7392376341559503204}
   m_Layer: 9
-  m_Name: Sword
+  m_Name: OneHandedSword
   m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
-  m_Sprite: {fileID: 21300000, guid: 34272c8167610d3469216e8ffc8d9066, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d68bb7c9ebe7cbf4cbd664c25696cbe8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -123,17 +123,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.00014670938, y: 0.32377654}
+  m_Offset: {x: 0.00014670938, y: 0.22382706}
   m_SpriteTilingProperty:
-    border: {x: 0.265625, y: 0.078125, z: 0.3125, w: 0.015625}
-    pivot: {x: 0.47346598, y: 0.20978443}
+    border: {x: 0.359375, y: 0.078125, z: 0.40625, w: 0.21875}
+    pivot: {x: 0.473466, y: 0.2097844}
     oldSize: {x: 1, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.16817938, y: 0.932878}
+  m_Size: {x: 0.16817938, y: 0.73297906}
   m_EdgeRadius: 0
 --- !u!50 &7392376341559503204
 Rigidbody2D:

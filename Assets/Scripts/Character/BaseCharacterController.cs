@@ -17,8 +17,8 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     [SerializeField] protected GameObject AudioHolder;
     [SerializeField] public GameObject ItemInHand { get; set; }
+    [SerializeField] public GameObject ItemInHandLeft { get; set; }
     [SerializeField] public List<GameObject> Items { get; protected set; }
-
     [SerializeField] public LayerMask EnemyLayer;
 
     protected CharacterStatController characterStatController;
@@ -42,7 +42,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     [SerializeField] protected bool Moving = false;
 
     [SerializeField] protected LayerMask RaycastIgnoreLayer;
-    [SerializeField] public bool IsHolding { get { return ItemInHand != null; } }
+    [SerializeField] public bool IsHolding { get { return (ItemInHand != null || ItemInHandLeft != null); } }
 
     [SerializeField] protected float maxTorsoRotation = 50f;
     [SerializeField] protected float maxHandRotation = 40f;
@@ -211,10 +211,47 @@ public abstract class BaseCharacterController : MonoBehaviour
     //---------------------Taking Item------------------------------
     protected void TakeItem(string itemName)
     {
-        Debug.Log(itemName);
-        ItemInHand = Items.FirstOrDefault(item => item.name == itemName);
-        Debug.Log(ItemInHand.name);
+        var ItemToTake = Items.FirstOrDefault(item => item.name == itemName);
+        if (ItemToTake.GetComponent<HoldableItem>() is Shield)
+        {
+            if ((ItemInHand != null && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded) || ItemInHandLeft != null)
+            {
+                DisablePreviousItem(ItemInHand);
+                DisablePreviousItem(ItemInHandLeft);
+                ItemInHand = null;
+                ItemInHandLeft = null;
+            }
+            ItemInHandLeft = ItemToTake;
+        }
+        else if(ItemToTake.GetComponent<HoldableItem>().IsTwoHanded)
+        {
+            if (ItemInHand != null || ItemInHandLeft != null)
+            {
+                DisablePreviousItem(ItemInHand);
+                DisablePreviousItem(ItemInHandLeft);
+                ItemInHand = null;
+                ItemInHandLeft = null;
+            }
+            ItemInHand = ItemToTake;
+        }
+        else if (!ItemToTake.GetComponent<HoldableItem>().IsTwoHanded)
+        {
+            if (ItemInHand != null)
+            {
+                DisablePreviousItem(ItemInHand);
+                ItemInHand = null;
+            }
+            ItemInHand = ItemToTake;
+        }
+        animator.SetLayerWeight(animator.GetLayerIndex(ItemInHand.name), 1);
         animator.SetBool("IsHolding", IsHolding);
+        Debug.Log(ItemInHand.name);
+    }
+
+    protected void DisablePreviousItem(GameObject itemInHand)
+    {
+        itemInHand.SetActive(false);
+        animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
     }
 
     //-----------------animation controller--------------------

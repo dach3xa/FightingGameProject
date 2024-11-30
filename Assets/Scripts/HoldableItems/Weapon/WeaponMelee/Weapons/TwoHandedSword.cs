@@ -10,6 +10,7 @@ public class TwoHandedSword : WeaponMelee
     void Start()
     {
         base.Start();
+        IsTwoHanded = true;
     }
 
     void Update()
