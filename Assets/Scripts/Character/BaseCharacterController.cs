@@ -15,6 +15,8 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     [SerializeField] protected GameObject ItemHolder;
 
+    [SerializeField] protected GameObject ItemHolderLeft;
+
     [SerializeField] protected GameObject AudioHolder;
     [SerializeField] public GameObject ItemInHand { get; set; }
     [SerializeField] public GameObject ItemInHandLeft { get; set; }
@@ -51,14 +53,14 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void Start()
     {
-        Torso = transform.Find("Torso").gameObject;
-        Head = transform.Find("Torso/Head").gameObject;
+        Torso = transform.Find("TorsoPivot").gameObject;
+        Head = transform.Find("TorsoPivot/Torso/HeadPivot").gameObject;
 
-        ArmRight = transform.Find("Torso/ArmRightPivot").gameObject;
-        ArmLeft = transform.Find("Torso/ArmLeftPivot").gameObject;
+        ArmRight = transform.Find("TorsoPivot/Torso/ArmRightPivot").gameObject;
+        ArmLeft = transform.Find("TorsoPivot/Torso/ArmLeftPivot").gameObject;
 
         ItemInHand = null;
-        ItemHolder = transform.Find("Torso/ArmRightPivot/ArmRight/ForeArmRight/ItemHolder").gameObject;
+        ItemHolder = transform.Find("TorsoPivot/Torso/ArmRightPivot/ArmRight/ForeArmRight/ItemHolder").gameObject;
 
         Items = new List<GameObject>();
         InitializeItemsList();
@@ -76,6 +78,11 @@ public abstract class BaseCharacterController : MonoBehaviour
     protected void InitializeItemsList()
     {
         foreach (Transform item in ItemHolder.transform)
+        {
+            Items.Add(item.gameObject);
+        }
+
+        foreach (Transform item in ItemHolderLeft.transform)
         {
             Items.Add(item.gameObject);
         }
@@ -184,10 +191,12 @@ public abstract class BaseCharacterController : MonoBehaviour
     //----Item animation events----
     protected void SetItemInHandActive()
     {
-        Debug.Log("setting item in hand active!");
-        Debug.Log(ItemInHand);
-        Debug.Log(ItemInHand.name);
         ItemInHand.SetActive(true);
+    }
+
+    protected void SetItemInHandLeftActive()
+    {
+        ItemInHandLeft.SetActive(true);
     }
     //----Movement animation events----
     protected void PlayStepSoundEffect()
@@ -214,11 +223,15 @@ public abstract class BaseCharacterController : MonoBehaviour
         var ItemToTake = Items.FirstOrDefault(item => item.name == itemName);
         if (ItemToTake.GetComponent<HoldableItem>() is Shield)
         {
-            if ((ItemInHand != null && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded) || ItemInHandLeft != null)
+            if (ItemInHand != null && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded)
             {
                 DisablePreviousItem(ItemInHand);
-                DisablePreviousItem(ItemInHandLeft);
                 ItemInHand = null;
+            }
+
+            if(ItemInHandLeft != null)
+            {
+                DisablePreviousItem(ItemInHandLeft);
                 ItemInHandLeft = null;
             }
             ItemInHandLeft = ItemToTake;
@@ -243,15 +256,18 @@ public abstract class BaseCharacterController : MonoBehaviour
             }
             ItemInHand = ItemToTake;
         }
-        animator.SetLayerWeight(animator.GetLayerIndex(ItemInHand.name), 1);
+
+
+        animator.SetLayerWeight(animator.GetLayerIndex(ItemToTake.name), 1);
+        animator.Play("NotHolding", animator.GetLayerIndex(ItemToTake.name), 0f);
         animator.SetBool("IsHolding", IsHolding);
         Debug.Log(ItemInHand.name);
     }
 
     protected void DisablePreviousItem(GameObject itemInHand)
     {
-        itemInHand.SetActive(false);
-        animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
+        itemInHand?.SetActive(false);
+        if(itemInHand) animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
     }
 
     //-----------------animation controller--------------------
@@ -279,4 +295,9 @@ public abstract class BaseCharacterController : MonoBehaviour
         }
     }
 
+
+    void OnDisable()
+    {
+        rb.linearVelocity = Vector3.zero;
+    }
 }

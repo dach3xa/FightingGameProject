@@ -107,6 +107,7 @@ public class CharacterStatController : MonoBehaviour
             CharacterControllerScript.ItemInHand.GetComponent<WeaponMelee>().enabled = false;
         }
 
+        animator.Play("Damaged", 0, 0f);
         animator.SetTrigger("Damaged");
         CharacterControllerScript.enabled = false;
         this.statState = CurrentStatState.Damaged;
@@ -131,6 +132,7 @@ public class CharacterStatController : MonoBehaviour
         this.statState = CurrentStatState.Dead;
         gameObject.layer = 0;
         this.enabled = false;
+
         TurnOnRigidbodyAndJointsForBodyParts();
         DropPrimaryItem();
         ApplyForceToBodyParts();

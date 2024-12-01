@@ -35,9 +35,9 @@ public class WeaponMelee : HoldableItem
     protected float comboCoolDownTimer = 0;
     protected float comboMaxTime = 0.6f;
     protected float ActionCoolDownTimer = 0;
-    protected float ActionCoolDownBlock = 1.2f;
-    protected float ActionCoolDownAttackPrimary = 1.2f;
-    protected float ActionCoolDownAttackSecondary = 1.4f;
+    protected float ActionCoolDownBlock = 1f;
+    protected float ActionCoolDownAttackPrimary = 1f;
+    protected float ActionCoolDownAttackSecondary = 1.1f;
     protected void Start()
     {
         base.Start();
@@ -112,7 +112,7 @@ public class WeaponMelee : HoldableItem
     public void OnHolderDamaged()
     {
         currentComboAnimationAttackPrimary = 0;
-        ActionCoolDownTimer = 0f;
+        ActionCoolDownTimer = 0.6f;
         comboCoolDownTimer = 0;
         currentState = CurrentStateOfWeapon.None;
 

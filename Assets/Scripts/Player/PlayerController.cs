@@ -159,7 +159,7 @@ public class PlayerController : BaseCharacterController
             {
                 ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
             }
-            if (ItemInHand.GetComponent<HoldableItem>().IsTwoHanded || ItemInHandLeft != null)
+            if ((ItemInHand && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded) || ItemInHandLeft != null)
             {
                 ArmLeft.transform.rotation = Quaternion.Euler(new Vector3(ArmLeft.transform.rotation.x, ArmLeft.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
             }
