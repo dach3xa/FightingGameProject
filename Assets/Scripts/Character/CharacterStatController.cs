@@ -100,12 +100,13 @@ public class CharacterStatController : MonoBehaviour
     }
     protected void ChangeCurrentStatStateToDamaged()
     {
-        CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>().OnHolderDamaged();
+        ResetAllAnimationParameters();
 
-        if (CharacterControllerScript.IsHolding)
-        {
-            CharacterControllerScript.ItemInHand.GetComponent<WeaponMelee>().enabled = false;
-        }
+        CharacterControllerScript.ItemInHand?.GetComponent<HoldableItem>().OnHolderDamaged();
+        CharacterControllerScript.ItemInHandLeft?.GetComponent<HoldableItem>().OnHolderDamaged();
+
+        if(CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<HoldableItem>().enabled = false;
+        if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = false;
 
         animator.Play("Damaged", 0, 0f);
         animator.SetTrigger("Damaged");
@@ -113,13 +114,33 @@ public class CharacterStatController : MonoBehaviour
         this.statState = CurrentStatState.Damaged;
     }
 
+    protected void ResetAllAnimationParameters()
+    {
+        foreach (AnimatorControllerParameter parameter in animator.parameters)
+        {
+            switch (parameter.type)
+            {
+                case AnimatorControllerParameterType.Float:
+                    animator.SetFloat(parameter.name, 0f);
+                    break;
+                case AnimatorControllerParameterType.Int:
+                    animator.SetInteger(parameter.name, 0);
+                    break;
+                case AnimatorControllerParameterType.Bool:
+                    if (parameter.name != "IsHolding")
+                    {
+                        animator.SetBool(parameter.name, false);
+                    }
+                    break;
+            }
+        }
+    }
+
     protected void ChangeCurrentStatStateToNormal()
     {
         CharacterControllerScript.enabled = true;
-        if (CharacterControllerScript.IsHolding)
-        {
-            CharacterControllerScript.ItemInHand.GetComponent<WeaponMelee>().enabled = true;
-        }
+        if (CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<HoldableItem>().enabled = true;
+        if (CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = true;
         this.statState = CurrentStatState.normal;
     }
 
@@ -134,7 +155,7 @@ public class CharacterStatController : MonoBehaviour
         this.enabled = false;
 
         TurnOnRigidbodyAndJointsForBodyParts();
-        DropPrimaryItem();
+        DropPrimaryItems();
         ApplyForceToBodyParts();
     }
 
@@ -164,9 +185,10 @@ public class CharacterStatController : MonoBehaviour
         LeftCalfRb.AddForce(new Vector2(-DamageDirectionHorizontal, 0).normalized * 0.4f, ForceMode2D.Force);
     }
 
-    protected void DropPrimaryItem()
+    protected void DropPrimaryItems()
     {
-        CharacterControllerScript.ItemInHand?.SetActive(false);
+        if(CharacterControllerScript.ItemInHand) CharacterControllerScript.DropItem(CharacterControllerScript.ItemInHand);
+        if (CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.DropItem(CharacterControllerScript.ItemInHandLeft);
     }
 
     //--------------------------- updating stats
@@ -205,8 +227,12 @@ public class CharacterStatController : MonoBehaviour
 
     public bool TakeDamage(float damage, float damageDirectionHorizontal)
     {
-        var WeaponInHands = CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>();
-        bool IsAttackingOrBlocking = (WeaponInHands != null && (WeaponInHands.currentState == WeaponMelee.CurrentStateOfWeapon.Blocking || WeaponInHands.currentState == WeaponMelee.CurrentStateOfWeapon.AttackingSecondary || WeaponInHands.currentState == WeaponMelee.CurrentStateOfWeapon.AttackingPrimary));
+        var ItemInHand = CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>();
+        var ItemInHandLeft = CharacterControllerScript.ItemInHandLeft?.GetComponent<Shield>();
+        bool IsAttackingOrBlocking = 
+            (ItemInHand && (ItemInHand.currentState == CurrentStateOfWeapon.Blocking || ItemInHand.currentState == CurrentStateOfWeapon.AttackingSecondary || ItemInHand.currentState == CurrentStateOfWeapon.AttackingPrimary)) 
+            || (ItemInHandLeft && (ItemInHandLeft.currentState == CurrentStateOfWeapon.Blocking));
+
         if (CharacterControllerScript.IsHolding && IsAttackingOrBlocking && (gameObject.transform.localScale.x/3) == -damageDirectionHorizontal)
         {
             Health -= damage / 10;

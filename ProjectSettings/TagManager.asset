@@ -22,7 +22,7 @@ TagManager:
   - Item
   - BodyPart
   - ItemInHand
-  - 
+  - Crosshair
   - 
   - 
   - 
@@ -46,20 +46,20 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Crosshair
-    uniqueID: 969390385
-    locked: 0
-  - name: Character
-    uniqueID: 724107037
-    locked: 0
-  - name: Ground
-    uniqueID: 1274823333
-    locked: 0
   - name: Background
     uniqueID: 2317796103
     locked: 0
   - name: BackgroundFront
     uniqueID: 714443577
+    locked: 0
+  - name: Ground
+    uniqueID: 1274823333
+    locked: 0
+  - name: Character
+    uniqueID: 724107037
+    locked: 0
+  - name: Crosshair
+    uniqueID: 969390385
     locked: 0
   m_RenderingLayers:
   - Default

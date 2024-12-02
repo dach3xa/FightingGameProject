@@ -24,7 +24,7 @@ public class PlayerController : BaseCharacterController
 
         HandleLook();
 
-        HandleUserInputAttack();
+        HandleUserInputAction();
     }
     void FixedUpdate()
     {
@@ -76,10 +76,10 @@ public class PlayerController : BaseCharacterController
     }
 
     //------------------------------- handle user input Attack/Block
-    private void HandleUserInputAttack()
+    private void HandleUserInputAction()
     {
         //Debug.Log(ItemInHand?.tag);
-        if (IsHolding && ItemInHand.CompareTag("Weapon"))
+        if (IsHolding)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -88,18 +88,29 @@ public class PlayerController : BaseCharacterController
                 var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
                 currentWeapon.AttackPrimary();
             }
-            else if (Input.GetMouseButtonDown(1))
+
+            if (Input.GetMouseButtonDown(1))
             {
                 //do the Block
-                var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
-                currentWeapon.Block();
+                IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
+                currentItem.BlockStart();
             }
-            else if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+            else if (Input.GetMouseButtonUp(1))
+            {
+                IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
+                currentItem.BlockEnd();
+            }
+
+
+            if (Input.GetAxis("Mouse ScrollWheel") > 0f)
             {
                 //stab em'
                 var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
                 currentWeapon.AttackSecondary();
-            }else if (Input.GetKeyDown(KeyCode.Q))
+            }
+            
+
+            if (Input.GetKeyDown(KeyCode.Q))
             {
                 var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
                 currentWeapon.CancelAttack();
@@ -155,11 +166,12 @@ public class PlayerController : BaseCharacterController
     {
         if (IsHolding)
         {
-            if (ItemInHand != null)
+            if (ItemInHand && ItemInHand.GetComponent<SpriteRenderer>().enabled)
             {
                 ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
             }
-            if ((ItemInHand && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded) || ItemInHandLeft != null)
+
+            if ((ItemInHand && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded && ItemInHand.GetComponent<SpriteRenderer>().enabled) || (ItemInHandLeft && ItemInHandLeft.GetComponent<SpriteRenderer>().enabled))
             {
                 ArmLeft.transform.rotation = Quaternion.Euler(new Vector3(ArmLeft.transform.rotation.x, ArmLeft.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
             }

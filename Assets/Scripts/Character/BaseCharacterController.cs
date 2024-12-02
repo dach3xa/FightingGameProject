@@ -162,12 +162,12 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void WeaponBlockStart()
     {
-        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
+        IBlockable currentWeapon = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
         currentWeapon.BlockStateStart();
     }
     protected void WeaponBlockEnd()
     {
-        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
+        IBlockable currentWeapon = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
         currentWeapon.BlockStateEnd();
     }
 
@@ -178,9 +178,9 @@ public abstract class BaseCharacterController : MonoBehaviour
             var Weapon = ItemInHand.GetComponent<WeaponMelee>();
 
             float staminaReduceMultiplier = 0;
-            if (Weapon.currentState == WeaponMelee.CurrentStateOfWeapon.AttackingPrimary)
+            if (Weapon.currentState == CurrentStateOfWeapon.AttackingPrimary)
                 staminaReduceMultiplier = Weapon.PrimaryAttackMultiplier;
-            else if (Weapon.currentState == WeaponMelee.CurrentStateOfWeapon.AttackingSecondary)
+            else if (Weapon.currentState == CurrentStateOfWeapon.AttackingSecondary)
                 staminaReduceMultiplier = Weapon.SecondaryAttackMultiplier;
 
             var staminaReduce = Weapon.BaseStaminaReduceValue * staminaReduceMultiplier;
@@ -191,12 +191,12 @@ public abstract class BaseCharacterController : MonoBehaviour
     //----Item animation events----
     protected void SetItemInHandActive()
     {
-        ItemInHand.SetActive(true);
+        ItemInHand.GetComponent<SpriteRenderer>().enabled = true;
     }
 
     protected void SetItemInHandLeftActive()
     {
-        ItemInHandLeft.SetActive(true);
+        ItemInHandLeft.GetComponent<SpriteRenderer>().enabled = true;
     }
     //----Movement animation events----
     protected void PlayStepSoundEffect()
@@ -260,8 +260,8 @@ public abstract class BaseCharacterController : MonoBehaviour
 
         animator.SetLayerWeight(animator.GetLayerIndex(ItemToTake.name), 1);
         animator.Play("NotHolding", animator.GetLayerIndex(ItemToTake.name), 0f);
-        animator.SetBool("IsHolding", IsHolding);
-        Debug.Log(ItemInHand.name);
+        animator.SetBool("IsHolding", true);
+        //Debug.Log(ItemInHand.name);
     }
 
     protected void DisablePreviousItem(GameObject itemInHand)
@@ -299,5 +299,23 @@ public abstract class BaseCharacterController : MonoBehaviour
     void OnDisable()
     {
         rb.linearVelocity = Vector3.zero;
+    }
+
+    //-----------Dropping--
+
+    public void DropItem(GameObject item)
+    {
+        if (!item) return;//null check
+
+        if (item == ItemInHand)
+        {
+            ItemInHand.GetComponent<SpriteRenderer>().enabled = false;
+            ItemInHand = null;
+        }
+        else if (item  == ItemInHandLeft)
+        {
+            ItemInHandLeft.GetComponent<SpriteRenderer>().enabled = false;
+            ItemInHand = null;
+        }
     }
 }

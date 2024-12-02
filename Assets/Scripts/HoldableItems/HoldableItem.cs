@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class HoldableItem : MonoBehaviour
+public abstract class HoldableItem : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [SerializeField] protected GameObject Holder;
@@ -10,7 +10,8 @@ public class HoldableItem : MonoBehaviour
     [SerializeField] protected BaseCharacterController HolderController;
     [SerializeField] protected SortingGroup HoldersSortingGroup;
     [SerializeField] protected Animator HoldersAnimator;
-    [SerializeField] protected Dictionary<string, AudioSource> HoldersSoundEffects;
+    [SerializeField] protected GameObject AudioHolder;
+    [SerializeField] protected Dictionary<string, AudioSource> SoundEffects;
     [SerializeField] public bool IsTwoHanded;
     protected void Start()
     {
@@ -19,12 +20,19 @@ public class HoldableItem : MonoBehaviour
         HolderController = Holder.GetComponent<BaseCharacterController>();
         HoldersSortingGroup = Holder.GetComponent<SortingGroup>();
         HoldersAnimator = Holder.GetComponent<Animator>();
-        HoldersSoundEffects = HolderController.SoundEffects;
+
+        AudioHolder = transform.Find("AudioSfx").gameObject;
+        SoundEffects = new Dictionary<string, AudioSource>();
+        IntializeSoundEffects();
     }
 
-    // Update is called once per frame
-    void Update()
+    protected void IntializeSoundEffects()
     {
-        
+        foreach (Transform Audio in AudioHolder.transform)
+        {
+            SoundEffects.Add(Audio.name, Audio.GetComponent<AudioSource>());
+        }
     }
+    public abstract void OnHolderDamaged();
+    
 }

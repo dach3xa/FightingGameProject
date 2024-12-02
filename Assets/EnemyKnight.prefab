@@ -725,7 +725,7 @@ HingeJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: -0.079999946, y: -0.20599994}
+  m_ConnectedAnchor: {x: -0.07999962, y: -0.20599994}
   m_UseConnectedAnchor: 1
   m_UseMotor: 0
   m_Motor:
@@ -1095,6 +1095,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ItemHolder: {fileID: 7177385842631137624}
+  ItemHolderLeft: {fileID: 7043652407257225575}
   AudioHolder: {fileID: 4717099040626748079}
   EnemyLayer:
     serializedVersion: 2
@@ -1693,7 +1694,7 @@ HingeJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: 0.05613592, y: 0.2210124}
+  m_ConnectedAnchor: {x: 0.056135837, y: 0.2210124}
   m_UseConnectedAnchor: 1
   m_UseMotor: 0
   m_Motor:
@@ -1915,7 +1916,8 @@ Transform:
   m_LocalPosition: {x: 0.067, y: -0.2, z: 1.091781}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6576439953558196806}
   m_Father: {fileID: 2366612139094454836}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1657820389374336675
@@ -2638,6 +2640,37 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &7043652407257225575
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6576439953558196806}
+  m_Layer: 0
+  m_Name: ItemHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6576439953558196806
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7043652407257225575}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0.47416493, w: 0.880436}
+  m_LocalPosition: {x: -0.22069728, y: -0.11248012, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5097897533655764280}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -56.61}
 --- !u!1 &7177385842631137624
 GameObject:
   m_ObjectHideFlags: 0
@@ -2874,7 +2907,7 @@ HingeJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: -0.09056166, y: 0.23853229}
+  m_ConnectedAnchor: {x: -0.0905617, y: 0.23853232}
   m_UseConnectedAnchor: 1
   m_UseMotor: 0
   m_Motor:

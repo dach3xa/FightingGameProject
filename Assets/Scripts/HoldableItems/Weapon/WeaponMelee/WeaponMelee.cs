@@ -3,16 +3,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
-
-public class WeaponMelee : HoldableItem
+public enum CurrentStateOfWeapon
 {
-    public enum CurrentStateOfWeapon
-    {
-        None,
-        AttackingPrimary,
-        AttackingSecondary,
-        Blocking
-    }
+    None,
+    AttackingPrimary,
+    AttackingSecondary,
+    Blocking
+}
+public class WeaponMelee : HoldableItem, IBlockable
+{
     //Weapon info
     [SerializeField] public CurrentStateOfWeapon currentState { get; set; }//change in future
     [SerializeField] protected float BaseAttackValue = 30f;
@@ -96,49 +95,25 @@ public class WeaponMelee : HoldableItem
             if (!enemyStats.TakeDamage(damage, Holder.transform.localScale.x / 3))
             {
                 HoldersAnimator.SetTrigger("Blocked");
-                HoldersSoundEffects["WeaponMeleeHitSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
-                HoldersSoundEffects["WeaponMeleeHitSound"].Play();
+                SoundEffects["WeaponMeleeHitSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
+                SoundEffects["WeaponMeleeHitSound"].Play();
                 ActionCoolDownTimer = 0;
             }
             else
             {
-                HoldersSoundEffects["WeaponMeleeDamageSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
-                HoldersSoundEffects["WeaponMeleeDamageSound"].Play();
+                SoundEffects["WeaponMeleeDamageSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
+                SoundEffects["WeaponMeleeDamageSound"].Play();
             }
             EnemiesHitWhileInAttackState.Add(collision.gameObject);
         }
     }
 
-    public void OnHolderDamaged()
+    public override void OnHolderDamaged()
     {
         currentComboAnimationAttackPrimary = 0;
-        ActionCoolDownTimer = 0.6f;
+        ActionCoolDownTimer = 0.5f;
         comboCoolDownTimer = 0;
         currentState = CurrentStateOfWeapon.None;
-
-        ResetAllAnimationParameters();// except for isholding
-    }
-
-    protected void ResetAllAnimationParameters()
-    {
-        foreach (AnimatorControllerParameter parameter in HoldersAnimator.parameters)
-        {
-            switch (parameter.type)
-            {
-                case AnimatorControllerParameterType.Float:
-                    HoldersAnimator.SetFloat(parameter.name, 0f);
-                    break;
-                case AnimatorControllerParameterType.Int:
-                    HoldersAnimator.SetInteger(parameter.name, 0);
-                    break;
-                case AnimatorControllerParameterType.Bool:
-                    if(parameter.name != "IsHolding")
-                    {
-                        HoldersAnimator.SetBool(parameter.name, false);
-                    }
-                    break;
-            }
-        }
     }
 
     protected void ResetComboCheck()
@@ -189,7 +164,7 @@ public class WeaponMelee : HoldableItem
         HoldersAnimator.ResetTrigger(triggerName);
     }
 
-    public void Block()
+    public void BlockStart()
     {
         if (ActionCoolDownTimer >= ActionCoolDownBlock && HolderStatController.Stamina > 0 && currentState == CurrentStateOfWeapon.None)
         {
@@ -198,22 +173,27 @@ public class WeaponMelee : HoldableItem
         }
     }
 
+    public void BlockEnd()
+    {
+        return;//only shields use this mechanic
+    }
+
     //-------------------Animation Events-----------------
 
     public void AttackStateStartPrimary()
     {
         HoldersSortingGroup.sortingOrder = 1;
         currentState = CurrentStateOfWeapon.AttackingPrimary;
-        HoldersSoundEffects["WeaponMeleeSlashSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
-        HoldersSoundEffects["WeaponMeleeSlashSound"].Play();
+        SoundEffects["WeaponMeleeSlashSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
+        SoundEffects["WeaponMeleeSlashSound"].Play();
     }
 
     public void AttackStateStartSecondary()
     {
         HoldersSortingGroup.sortingOrder = 1;
         currentState = CurrentStateOfWeapon.AttackingSecondary;
-        HoldersSoundEffects["WeaponMeleeThrustSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
-        HoldersSoundEffects["WeaponMeleeThrustSound"].Play();
+        SoundEffects["WeaponMeleeThrustSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
+        SoundEffects["WeaponMeleeThrustSound"].Play();
     }
 
     public void AttackStateEnd()

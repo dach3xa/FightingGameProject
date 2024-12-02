@@ -128,7 +128,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
 
         if (BlockChance >= RandomFloat)
         {
-            currentWeapon.Block();
+            currentWeapon.BlockStart();
         }
     }
 }
