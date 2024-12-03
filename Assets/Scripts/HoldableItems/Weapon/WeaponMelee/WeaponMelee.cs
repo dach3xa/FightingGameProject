@@ -34,9 +34,9 @@ public class WeaponMelee : HoldableItem, IBlockable
     protected float comboCoolDownTimer = 0;
     protected float comboMaxTime = 0.6f;
     protected float ActionCoolDownTimer = 0;
-    protected float ActionCoolDownBlock = 1f;
-    protected float ActionCoolDownAttackPrimary = 1f;
-    protected float ActionCoolDownAttackSecondary = 1.1f;
+    protected float ActionCoolDownBlock = 1.1f;
+    protected float ActionCoolDownAttackPrimary = 1.2f;
+    protected float ActionCoolDownAttackSecondary = 1.15f;
     protected void Start()
     {
         base.Start();
@@ -118,8 +118,11 @@ public class WeaponMelee : HoldableItem, IBlockable
 
     protected void ResetComboCheck()
     {
+
         if (currentComboAnimationAttackPrimary > 0 && comboCoolDownTimer > comboMaxTime)
         {
+            Debug.Log(comboCoolDownTimer + " : " + comboMaxTime);
+            Debug.Log("Resetting combo!");
             currentComboAnimationAttackPrimary = 0;
             currentState = CurrentStateOfWeapon.None;
         }
@@ -137,6 +140,7 @@ public class WeaponMelee : HoldableItem, IBlockable
             comboCoolDownTimer = 0;
         }
     }
+
     public void AttackSecondary()
     {
         if (ActionCoolDownTimer >= ActionCoolDownAttackSecondary && HolderStatController.Stamina > 20f * 0.8f && currentState == CurrentStateOfWeapon.None)
@@ -154,7 +158,7 @@ public class WeaponMelee : HoldableItem, IBlockable
             HoldersAnimator.SetTrigger("StopAttack");
             StartCoroutine(ResetTriggerCoroutine("StopAttack"));
             currentComboAnimationAttackPrimary = 0;
-            ActionCoolDownTimer = 0.9f;
+            ActionCoolDownTimer = 0.8f;
         }
     }
 

@@ -63,8 +63,8 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         while (currentState == CurrentEnemyState.Combat)
         {
             CombatBehaviour(ref AttackCoolDownTimer);
-            yield return new WaitForSeconds(0.1f);
-            AttackCoolDownTimer += 0.1f;
+            yield return new WaitForSeconds(0.2f);
+            AttackCoolDownTimer += 0.2f;
         }
     }
     protected override void CombatBehaviour(ref float AttackCoolDownTimer)
@@ -91,10 +91,11 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
 
     protected override void AttackPattern(ref float AttackCoolDownTimer)
     {
-        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
+        var currentWeapon = ItemInHand?.GetComponent<WeaponMelee>();
         AnimatorStateInfo EnemyAnimatorStateInfo = EnemyFocused.GetComponent<Animator>().GetCurrentAnimatorStateInfo(2);
         float AttackCoolDown = UnityEngine.Random.Range(AttackCoolDownRangeMin, AttackCoolDownRangeMax);
         var EnemyWeapon = EnemyFocused.GetComponent<BaseCharacterController>().ItemInHand?.GetComponent<WeaponMelee>();
+
         if (EnemyWeapon != null)
         {
             if (DistenceToEnemy < DistenceToEnemyStartBlocking && characterStatController.Stamina > 0 && (EnemyAnimatorStateInfo.IsName("WeaponMeleeTwoHandedSecondaryAttack") || EnemyAnimatorStateInfo.IsName("WeaponMeleeTwoHandedPrimaryAttack")))
@@ -103,9 +104,10 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
             }
         }
 
+        float AttackTypeChance = UnityEngine.Random.Range(0, 1f);
         if (DistenceToEnemy < DistenceToEnemyStartAttacking)
         {
-            if (characterStatController.Stamina > 60f && AttackCoolDownTimer > AttackCoolDown)
+            if (characterStatController.Stamina > 60f && AttackCoolDownTimer > AttackCoolDown && (AttackTypeChance > 0.3f || currentWeapon.currentComboAnimationAttackPrimary > 0))
             {
                 currentWeapon.AttackPrimary();
                 if (currentWeapon.currentComboAnimationAttackPrimary >= 3)
@@ -113,7 +115,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
                     AttackCoolDownTimer = 0;
                 }
             }
-            else if (characterStatController.Stamina > 40f && AttackCoolDownTimer > AttackCoolDown)
+            else if (characterStatController.Stamina > 30f && AttackCoolDownTimer > AttackCoolDown && AttackTypeChance <= 0.3f)
             {
                 currentWeapon.AttackSecondary();
                 AttackCoolDownTimer = 0;
@@ -128,7 +130,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
 
         if (BlockChance >= RandomFloat)
         {
-            currentWeapon.BlockStart();
+            currentWeapon?.BlockStart();
         }
     }
 }

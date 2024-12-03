@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public abstract class BaseCharacterController : MonoBehaviour
 {
@@ -192,11 +193,15 @@ public abstract class BaseCharacterController : MonoBehaviour
     protected void SetItemInHandActive()
     {
         ItemInHand.GetComponent<SpriteRenderer>().enabled = true;
+        ItemInHand.GetComponent<HoldableItem>().enabled = true;
+        ItemInHand.GetComponent<BoxCollider2D>().enabled = true;    
     }
 
     protected void SetItemInHandLeftActive()
     {
         ItemInHandLeft.GetComponent<SpriteRenderer>().enabled = true;
+        ItemInHandLeft.GetComponent<HoldableItem>().enabled = true;
+        ItemInHandLeft.GetComponent<BoxCollider2D>().enabled = true;
     }
     //----Movement animation events----
     protected void PlayStepSoundEffect()
@@ -266,8 +271,14 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void DisablePreviousItem(GameObject itemInHand)
     {
-        itemInHand?.SetActive(false);
-        if(itemInHand) animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
+        if (itemInHand)
+        {
+            itemInHand.GetComponent<HoldableItem>().enabled = false;
+            itemInHand.GetComponent<SpriteRenderer>().enabled = false;
+            itemInHand.GetComponent<BoxCollider2D>().enabled = false;
+
+            animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
+        }
     }
 
     //-----------------animation controller--------------------

@@ -14,8 +14,9 @@ public class OneHandedSword : WeaponMelee
 
         //cooldowns
         ActionCoolDownBlock = 1.1f;
-        ActionCoolDownAttackPrimary = 1f;
+        ActionCoolDownAttackPrimary = 1.2f;
         ActionCoolDownAttackSecondary = 1.15f;
+        comboMaxTime = 0.6f;
 
         //define weapon collider
         WidthOfWeapon = 0.25f;
