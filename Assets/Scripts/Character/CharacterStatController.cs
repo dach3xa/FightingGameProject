@@ -141,6 +141,7 @@ public class CharacterStatController : MonoBehaviour
         CharacterControllerScript.enabled = true;
         if (CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<HoldableItem>().enabled = true;
         if (CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = true;
+        animator.ResetTrigger("Damaged");
         this.statState = CurrentStatState.normal;
     }
 
@@ -229,12 +230,20 @@ public class CharacterStatController : MonoBehaviour
     {
         var ItemInHand = CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>();
         var ItemInHandLeft = CharacterControllerScript.ItemInHandLeft?.GetComponent<Shield>();
-        bool IsAttackingOrBlocking = 
-            (ItemInHand && (ItemInHand.currentState == CurrentStateOfWeapon.Blocking || ItemInHand.currentState == CurrentStateOfWeapon.AttackingSecondary || ItemInHand.currentState == CurrentStateOfWeapon.AttackingPrimary)) 
-            || (ItemInHandLeft && (ItemInHandLeft.currentState == CurrentStateOfWeapon.Blocking));
+        bool IsAttackingOrBlockingRightHand = (ItemInHand && (ItemInHand.currentState == CurrentStateOfWeapon.Blocking || ItemInHand.currentState == CurrentStateOfWeapon.AttackingSecondary || ItemInHand.currentState == CurrentStateOfWeapon.AttackingPrimary));
+        bool IsBlockingLeftHand = ItemInHandLeft && (ItemInHandLeft.currentState == CurrentStateOfWeapon.Blocking);
 
-        if (CharacterControllerScript.IsHolding && IsAttackingOrBlocking && (gameObject.transform.localScale.x/3) == -damageDirectionHorizontal)
+        if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && (gameObject.transform.localScale.x/3) == -damageDirectionHorizontal)
         {
+            if (IsBlockingLeftHand)
+            {
+                ItemInHandLeft.BlockImpact();
+            }
+            else if(IsAttackingOrBlockingRightHand && ItemInHand.currentState == CurrentStateOfWeapon.Blocking)
+            {
+                ItemInHand.BlockImpact();
+            }
+
             Health -= damage / 10;
             Stamina -= damage / 2;
             Mathf.Clamp(Health, 0, baseHealth);

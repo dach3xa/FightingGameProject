@@ -173,6 +173,11 @@ public class WeaponMelee : HoldableItem, IBlockable
         }
     }
 
+    public void BlockImpact()
+    {
+        HoldersAnimator.SetTrigger("Blocked");
+    }
+
     public void BlockEnd()
     {
         return;//only shields use this mechanic

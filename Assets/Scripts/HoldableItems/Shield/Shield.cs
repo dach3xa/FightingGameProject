@@ -50,6 +50,10 @@ public class Shield : HoldableItem, IBlockable
             ActionCoolDownTimer = -0.3f;
         }
     }
+    public void BlockImpact()
+    {
+        HoldersAnimator.SetTrigger("Blocked");
+    }
 
     public void BlockEnd()
     {
