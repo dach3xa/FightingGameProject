@@ -85,7 +85,7 @@ public class PlayerController : BaseCharacterController
             {
                 Debug.Log("AttackingPrimary!!");
 
-                if (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield && ItemInHandLeft.GetComponent<Shield>().currentState == CurrentStateOfWeapon.Blocking){
+                if (!ItemInHand || (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield && ItemInHandLeft.GetComponent<Shield>().currentState == CurrentStateOfWeapon.Blocking)){
                     return;
                 }
                 //do the attack
@@ -109,7 +109,7 @@ public class PlayerController : BaseCharacterController
             if (Input.GetAxis("Mouse ScrollWheel") > 0f)
             {
                 //stab em'
-                if(ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield && ItemInHandLeft.GetComponent<Shield>().currentState == CurrentStateOfWeapon.Blocking){
+                if(!ItemInHand || (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield && ItemInHandLeft.GetComponent<Shield>().currentState == CurrentStateOfWeapon.Blocking)){
                     return;
                 }
 
@@ -120,6 +120,7 @@ public class PlayerController : BaseCharacterController
 
             if (Input.GetKeyDown(KeyCode.Q))
             {
+                Debug.Log("Calling the cancel event!");
                 var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
 
                 currentWeapon.CancelAttack();

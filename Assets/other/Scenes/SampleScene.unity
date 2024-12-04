@@ -6207,7 +6207,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5461838742462922276, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_ConnectedAnchor.x
-      value: -0.09056166
+      value: -0.10054069
+      objectReference: {fileID: 0}
+    - target: {fileID: 5461838742462922276, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
+      propertyPath: m_ConnectedAnchor.y
+      value: 0.23917948
       objectReference: {fileID: 0}
     - target: {fileID: 5735013916654002223, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6275,11 +6279,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8544471767022111493, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_ConnectedAnchor.x
-      value: -0.07999994
+      value: -0.08000002
       objectReference: {fileID: 0}
     - target: {fileID: 8544471767022111493, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_ConnectedAnchor.y
-      value: -0.20599993
+      value: -0.20599994
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

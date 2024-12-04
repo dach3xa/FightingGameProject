@@ -15,6 +15,7 @@ public class CharacterStatController : MonoBehaviour
         Dead
     }
     CurrentStatState statState = CurrentStatState.normal;
+
     [SerializeField] public float Health;
     [SerializeField] protected float baseHealth = 100f;
     [SerializeField] public float Stamina;
@@ -22,6 +23,7 @@ public class CharacterStatController : MonoBehaviour
     [SerializeField] public float Mana;
     [SerializeField] protected float baseMana = 0f;
     [SerializeField] protected float DamageDirectionHorizontal;
+
 
     [SerializeField] protected float ManaRegenSpeed;
     [SerializeField] protected float HealthRegenSpeed;
@@ -105,12 +107,12 @@ public class CharacterStatController : MonoBehaviour
         CharacterControllerScript.ItemInHand?.GetComponent<HoldableItem>().OnHolderDamaged();
         CharacterControllerScript.ItemInHandLeft?.GetComponent<HoldableItem>().OnHolderDamaged();
 
+        CharacterControllerScript.enabled = false;
         if(CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<HoldableItem>().enabled = false;
         if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = false;
 
         animator.Play("Damaged", 0, 0f);
         animator.SetTrigger("Damaged");
-        CharacterControllerScript.enabled = false;
         this.statState = CurrentStatState.Damaged;
     }
 
@@ -141,6 +143,7 @@ public class CharacterStatController : MonoBehaviour
         CharacterControllerScript.enabled = true;
         if (CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<HoldableItem>().enabled = true;
         if (CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = true;
+
         animator.ResetTrigger("Damaged");
         this.statState = CurrentStatState.normal;
     }
@@ -171,6 +174,11 @@ public class CharacterStatController : MonoBehaviour
             if(BodyPart.name != "Torso")
             {
                 BodyPart.GetComponent<HingeJoint2D>().enabled = true;
+            }
+
+            if(BodyPart.name == "ForeArmLeft")
+            {
+                BodyPart.GetComponent<SpriteRenderer>().sortingOrder = 0;
             }
         }
     }

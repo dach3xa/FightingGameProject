@@ -153,18 +153,25 @@ public class WeaponMelee : HoldableItem, IBlockable
 
     public void CancelAttack()
     {
-        if (currentState == CurrentStateOfWeapon.None && (currentComboAnimationAttackPrimary != 0 || ActionCoolDownTimer <= 0.5f))
+        Debug.Log("Trying to Cancel the event!");
+        AnimatorStateInfo HolderAnimatorStateInfo = HoldersAnimator.GetCurrentAnimatorStateInfo(HolderController.CurrentAnimatorHoldingLayerRight);
+        if (currentState == CurrentStateOfWeapon.None && currentComboAnimationAttackPrimary < 2 && (HolderAnimatorStateInfo.IsName("PrimaryAttack") || HolderAnimatorStateInfo.IsName("SecondaryAttack")))
         {
-            HoldersAnimator.SetTrigger("StopAttack");
-            StartCoroutine(ResetTriggerCoroutine("StopAttack"));
+            HoldersAnimator.SetBool("StopAttack", true);
+            StartCoroutine(ResetBool("StopAttack"));
             currentComboAnimationAttackPrimary = 0;
             ActionCoolDownTimer = 0.8f;
+            Debug.Log("Cancel succesful!");
+        }
+        else
+        {
+            Debug.Log("Cancel Failed!");
         }
     }
 
-    protected IEnumerator ResetTriggerCoroutine(string triggerName)
+    protected IEnumerator ResetBool(string triggerName)
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.4f);
         HoldersAnimator.ResetTrigger(triggerName);
     }
 

@@ -19,10 +19,12 @@ public abstract class BaseCharacterController : MonoBehaviour
     [SerializeField] protected GameObject ItemHolderLeft;
 
     [SerializeField] protected GameObject AudioHolder;
-    [SerializeField] public GameObject ItemInHand { get; set; }
-    [SerializeField] public GameObject ItemInHandLeft { get; set; }
+    [SerializeField] public GameObject ItemInHand { get; protected set; }
+    [SerializeField] public GameObject ItemInHandLeft { get; protected set; }
     [SerializeField] public List<GameObject> Items { get; protected set; }
     [SerializeField] public LayerMask EnemyLayer;
+    [SerializeField] public int CurrentAnimatorHoldingLayerRight { get; protected set; }
+    [SerializeField] public int CurrentAnimatorHoldingLayerLeft { get; protected set; }
 
     protected CharacterStatController characterStatController;
 
@@ -30,11 +32,10 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected Animator animator;
 
-    protected int JumpCount = 0;
-    public int MaxJumpCount = 1;
+    [SerializeField]protected int JumpCount = 0;
+    [SerializeField]protected int MaxJumpCount = 1;
 
     public float angleToTarget { get; protected set; }
-
     public float baseSpeed { get; set; } = 5f;
     protected float airVelocity { get; set; } = 300f;
     public float baseJumpForce { get; set; } = 500f;
@@ -228,45 +229,70 @@ public abstract class BaseCharacterController : MonoBehaviour
         var ItemToTake = Items.FirstOrDefault(item => item.name == itemName);
         if (ItemToTake.GetComponent<HoldableItem>() is Shield)
         {
-            if (ItemInHand != null && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded)
-            {
-                DisablePreviousItem(ItemInHand);
-                ItemInHand = null;
-            }
-
-            if(ItemInHandLeft != null)
-            {
-                DisablePreviousItem(ItemInHandLeft);
-                ItemInHandLeft = null;
-            }
-            ItemInHandLeft = ItemToTake;
+            TakeShield(ItemToTake);
         }
         else if(ItemToTake.GetComponent<HoldableItem>().IsTwoHanded)
         {
-            if (ItemInHand != null || ItemInHandLeft != null)
-            {
-                DisablePreviousItem(ItemInHand);
-                DisablePreviousItem(ItemInHandLeft);
-                ItemInHand = null;
-                ItemInHandLeft = null;
-            }
-            ItemInHand = ItemToTake;
+            TakeTwoHandedWeapon(ItemToTake);
         }
         else if (!ItemToTake.GetComponent<HoldableItem>().IsTwoHanded)
         {
-            if (ItemInHand != null)
-            {
-                DisablePreviousItem(ItemInHand);
-                ItemInHand = null;
-            }
-            ItemInHand = ItemToTake;
+            TakeOneHandedWeapon(ItemToTake);
+        }
+    }
+
+    protected void TakeShield(GameObject Shield)
+    {
+        if (ItemInHand != null && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded)
+        {
+            DisablePreviousItem(ItemInHand);
         }
 
+        if (ItemInHandLeft != null)
+        {
+            DisablePreviousItem(ItemInHandLeft);
+        }
 
-        animator.SetLayerWeight(animator.GetLayerIndex(ItemToTake.name), 1);
-        animator.Play("NotHolding", animator.GetLayerIndex(ItemToTake.name), 0f);
+        ItemInHandLeft = Shield;
+
+        CurrentAnimatorHoldingLayerLeft = animator.GetLayerIndex(ItemInHandLeft.name);
+        animator.SetLayerWeight(CurrentAnimatorHoldingLayerLeft, 1);
+
+        animator.Play("NotHolding", CurrentAnimatorHoldingLayerLeft, 0f);
         animator.SetBool("IsHolding", true);
-        //Debug.Log(ItemInHand.name);
+    }
+
+    protected void TakeTwoHandedWeapon(GameObject TwoHandedWeapon)
+    {
+        if (ItemInHand != null || ItemInHandLeft != null)
+        {
+            DisablePreviousItem(ItemInHand);
+            DisablePreviousItem(ItemInHandLeft);
+        }
+
+        ItemInHand = TwoHandedWeapon;
+
+        CurrentAnimatorHoldingLayerRight = animator.GetLayerIndex(ItemInHand.name);
+        animator.SetLayerWeight(CurrentAnimatorHoldingLayerRight, 1);
+
+        animator.Play("NotHolding", CurrentAnimatorHoldingLayerRight, 0f);
+        animator.SetBool("IsHolding", true);
+    }
+
+    protected void TakeOneHandedWeapon(GameObject OneHandedWeapon)
+    {
+        if (ItemInHand != null)
+        {
+            DisablePreviousItem(ItemInHand);
+            ItemInHand = null;
+        }
+        ItemInHand = OneHandedWeapon;
+
+        CurrentAnimatorHoldingLayerRight = animator.GetLayerIndex(ItemInHand.name);
+        animator.SetLayerWeight(CurrentAnimatorHoldingLayerRight, 1);
+
+        animator.Play("NotHolding", CurrentAnimatorHoldingLayerRight, 0f);
+        animator.SetBool("IsHolding", true);
     }
 
     protected void DisablePreviousItem(GameObject itemInHand)
@@ -278,6 +304,15 @@ public abstract class BaseCharacterController : MonoBehaviour
             itemInHand.GetComponent<BoxCollider2D>().enabled = false;
 
             animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
+
+            if(itemInHand == ItemInHand)
+            {
+                ItemInHand = null;
+            }
+            else if(itemInHand == ItemInHandLeft)
+            {
+                ItemInHandLeft = null;
+            }
         }
     }
 
@@ -318,15 +353,8 @@ public abstract class BaseCharacterController : MonoBehaviour
     {
         if (!item) return;//null check
 
-        if (item == ItemInHand)
-        {
-            ItemInHand.GetComponent<SpriteRenderer>().enabled = false;
-            ItemInHand = null;
-        }
-        else if (item  == ItemInHandLeft)
-        {
-            ItemInHandLeft.GetComponent<SpriteRenderer>().enabled = false;
-            ItemInHand = null;
-        }
+        DisablePreviousItem(item);
+
+        //dropp
     }
 }
