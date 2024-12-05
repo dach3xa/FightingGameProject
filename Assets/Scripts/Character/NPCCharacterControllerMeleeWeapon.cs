@@ -63,8 +63,8 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         while (currentState == CurrentEnemyState.Combat)
         {
             CombatBehaviour(ref AttackCoolDownTimer);
-            yield return new WaitForSeconds(0.2f);
-            AttackCoolDownTimer += 0.2f;
+            yield return new WaitForSeconds(0.1f);
+            AttackCoolDownTimer += 0.1f;
         }
     }
     protected override void CombatBehaviour(ref float AttackCoolDownTimer)

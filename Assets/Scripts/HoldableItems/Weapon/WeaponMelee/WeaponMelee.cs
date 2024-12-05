@@ -29,10 +29,12 @@ public class WeaponMelee : HoldableItem, IBlockable
 
     //combo Attack counter 
     public int currentComboAnimationAttackPrimary = 0;
+    [SerializeField] protected int currentPlayingComboAnimationAttackPrimary = 0;
 
     //cooldowns
     protected float comboCoolDownTimer = 0;
     protected float comboMaxTime = 0.6f;
+
     protected float ActionCoolDownTimer = 0;
     protected float ActionCoolDownBlock = 1.1f;
     protected float ActionCoolDownAttackPrimary = 1.2f;
@@ -92,7 +94,7 @@ public class WeaponMelee : HoldableItem, IBlockable
         {
             CharacterStatController enemyStats = collision.gameObject.GetComponent<CharacterStatController>();
             float damage = (currentState == CurrentStateOfWeapon.AttackingPrimary) ? BaseAttackValue * PrimaryAttackMultiplier : BaseAttackValue * SecondaryAttackMultiplier;
-            if (!enemyStats.TakeDamage(damage, Holder.transform.localScale.x / 3))
+            if (!enemyStats.TakeDamage(damage, Holder))
             {
                 HoldersAnimator.SetTrigger("Blocked");
                 SoundEffects["WeaponMeleeHitSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
@@ -111,33 +113,38 @@ public class WeaponMelee : HoldableItem, IBlockable
     public override void OnHolderDamaged()
     {
         currentComboAnimationAttackPrimary = 0;
+        currentPlayingComboAnimationAttackPrimary = 0;
+
         ActionCoolDownTimer = 0.5f;
-        comboCoolDownTimer = 0;
         currentState = CurrentStateOfWeapon.None;
     }
 
     protected void ResetComboCheck()
     {
 
-        if (currentComboAnimationAttackPrimary > 0 && comboCoolDownTimer > comboMaxTime)
+        if ((currentComboAnimationAttackPrimary > 0 && comboCoolDownTimer > comboMaxTime))
         {
             Debug.Log(comboCoolDownTimer + " : " + comboMaxTime);
             Debug.Log("Resetting combo!");
+            currentPlayingComboAnimationAttackPrimary = 0;
             currentComboAnimationAttackPrimary = 0;
             currentState = CurrentStateOfWeapon.None;
         }
+
         HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", currentComboAnimationAttackPrimary);
     }
 
     //------------Actions----------------------------
     public void AttackPrimary()
     {
-        if ((comboCoolDownTimer <= comboMaxTime && currentComboAnimationAttackPrimary < 3 || ActionCoolDownTimer > ActionCoolDownAttackPrimary) && HolderStatController.Stamina > 20f * 1.2f)
+        if ((comboCoolDownTimer <= comboMaxTime && currentComboAnimationAttackPrimary < 3 && currentComboAnimationAttackPrimary > 0|| ActionCoolDownTimer > ActionCoolDownAttackPrimary) && HolderStatController.Stamina > 20f * 1.2f)
         {
             HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", ++currentComboAnimationAttackPrimary);
 
+
             ActionCoolDownTimer = 0;
             comboCoolDownTimer = 0;
+
         }
     }
 
@@ -159,13 +166,10 @@ public class WeaponMelee : HoldableItem, IBlockable
         {
             HoldersAnimator.SetBool("StopAttack", true);
             StartCoroutine(ResetBool("StopAttack"));
+
             currentComboAnimationAttackPrimary = 0;
+            currentPlayingComboAnimationAttackPrimary = 0;
             ActionCoolDownTimer = 0.8f;
-            Debug.Log("Cancel succesful!");
-        }
-        else
-        {
-            Debug.Log("Cancel Failed!");
         }
     }
 
@@ -202,6 +206,11 @@ public class WeaponMelee : HoldableItem, IBlockable
         currentState = CurrentStateOfWeapon.AttackingPrimary;
         SoundEffects["WeaponMeleeSlashSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
         SoundEffects["WeaponMeleeSlashSound"].Play();
+
+        if(currentPlayingComboAnimationAttackPrimary < currentComboAnimationAttackPrimary)
+        {
+            currentPlayingComboAnimationAttackPrimary++;
+        }
     }
 
     public void AttackStateStartSecondary()
@@ -217,6 +226,12 @@ public class WeaponMelee : HoldableItem, IBlockable
         currentState = CurrentStateOfWeapon.None;
         EnemiesHitWhileInAttackState.Clear();
         HoldersSortingGroup.sortingOrder = 0;
+
+        if(currentPlayingComboAnimationAttackPrimary == 3)
+        {
+            currentComboAnimationAttackPrimary = 0;
+            currentPlayingComboAnimationAttackPrimary = 0;
+        }
     }
 
     public void BlockStateStart()

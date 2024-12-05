@@ -17,7 +17,7 @@ public abstract class NPCCharacterController : BaseCharacterController
 
     [SerializeField] protected float TimerUntilStopsSeeing = 0f;
     [SerializeField] protected float EnemySawForgetTime = 20f;
-    [SerializeField] protected float EnemySeeRadius = 10f;
+    [SerializeField] protected float EnemySeeRadius = 20f;
 
     [SerializeField] protected LayerMask GroundLayer;
 
@@ -90,12 +90,16 @@ public abstract class NPCCharacterController : BaseCharacterController
             Vector2 DirectionToEnemy = (Enemy.gameObject.transform.position - transform.position).normalized;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, DirectionToEnemy, EnemySeeRadius, ~RaycastIgnoreLayer);
             float AngleToEnemy = Vector2.Angle(Head.transform.right * (transform.localScale.x / 3), DirectionToEnemy);
-            if (Mathf.Abs(AngleToEnemy) <= FOV && hit.collider.gameObject == Enemy.gameObject)
+            Debug.Log(AngleToEnemy);
+            if(hit) Debug.Log(hit.collider.gameObject);
+            Debug.Log(Enemy.gameObject);
+            if (Mathf.Abs(AngleToEnemy) <= FOV && hit && hit.collider.gameObject == Enemy.gameObject)
             {
+                Debug.Log("Saw in FOV!");
                 EnemyFocused = Enemy.gameObject;
                 StateManager(CurrentEnemyState.SawEnemy);
             }
-            else if (Vector2.Distance(transform.position, Enemy.gameObject.transform.position) < 5f)
+            else if (Vector2.Distance(transform.position, Enemy.gameObject.transform.position) < 3f)
             {
                 EnemyFocused = Enemy.gameObject;
                 StateManager(CurrentEnemyState.SawEnemy);
@@ -152,8 +156,10 @@ public abstract class NPCCharacterController : BaseCharacterController
     {
         if (Running) Running = false;
         if (EnemyFocused != null) EnemyFocused = null;
+
         TimerUntilStopsSeeing = 0f;
         currentState = CurrentEnemyState.Idle;
+
         if (CurrentBehaviourControllerCoroutine != null)
         {
             StopCoroutine(CurrentBehaviourControllerCoroutine);
@@ -309,6 +315,7 @@ public abstract class NPCCharacterController : BaseCharacterController
             {
                 angletoTargetCalculation = angletoTargetCalculation + 360;//dont ask me why this works(it does) 
             }
+
             Torso.transform.rotation = Quaternion.Euler(new Vector3(Torso.transform.rotation.x, Torso.transform.rotation.y, angletoTargetCalculation / (180 / maxTorsoRotation)));
             Head.transform.rotation = Quaternion.Euler(new Vector3(Head.transform.rotation.x, Head.transform.rotation.y, angletoTargetCalculation / (180 / (maxHeadRotation + maxTorsoRotation))));
             ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angletoTargetCalculation / (180 / (maxHandRotation + maxTorsoRotation))));

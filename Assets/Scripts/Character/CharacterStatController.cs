@@ -82,7 +82,7 @@ public class CharacterStatController : MonoBehaviour
     }
     //---------------------- current stat state controller
 
-    protected void CurrentStatStateController(CurrentStatState NewStatState)
+    protected void CurrentStatStateController(CurrentStatState NewStatState, object AdditionalInfo = null)
     {
         switch (NewStatState) 
         {
@@ -90,7 +90,7 @@ public class CharacterStatController : MonoBehaviour
                 this.statState = NewStatState;
                 break;
             case CurrentStatState.Damaged:
-                ChangeCurrentStatStateToDamaged();
+                ChangeCurrentStatStateToDamaged(AdditionalInfo);
                 break;
             case CurrentStatState.normal:
                 ChangeCurrentStatStateToNormal();
@@ -100,7 +100,7 @@ public class CharacterStatController : MonoBehaviour
                 break;
         }
     }
-    protected void ChangeCurrentStatStateToDamaged()
+    protected void ChangeCurrentStatStateToDamaged(object AdditionalInfo)
     {
         ResetAllAnimationParameters();
 
@@ -111,7 +111,36 @@ public class CharacterStatController : MonoBehaviour
         if(CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<HoldableItem>().enabled = false;
         if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = false;
 
-        animator.Play("Damaged", 0, 0f);
+        GameObject attacker = (GameObject)AdditionalInfo;
+        Animator attackerAnimator = attacker.GetComponent<Animator>();
+
+        AnimatorStateInfo attackerAnimatorStateInfo = attackerAnimator.GetCurrentAnimatorStateInfo(attacker.GetComponent<BaseCharacterController>().CurrentAnimatorHoldingLayerRight);
+
+        if((gameObject.transform.localScale.x / 3) == -attacker.transform.localScale.x / 3)
+        {
+            Debug.Log("towards me damaged");
+            if (attackerAnimatorStateInfo.IsName("PrimaryAttack") || attackerAnimatorStateInfo.IsName("SecondaryAttack"))
+            {
+                animator.Play("DamagedBottom", 0, 0f);
+                Debug.Log("DamagedBottom!");
+            }
+            else
+            {
+                animator.Play("Damaged", 0, 0f);
+            }
+        }
+        else
+        {
+            if (attackerAnimatorStateInfo.IsName("SecondaryAttack"))
+            {
+                animator.Play("Damaged", 0, 0f);
+            }
+            else
+            {
+                animator.Play("DamagedBottom", 0, 0f);
+            }
+        }
+
         animator.SetTrigger("Damaged");
         this.statState = CurrentStatState.Damaged;
     }
@@ -197,7 +226,7 @@ public class CharacterStatController : MonoBehaviour
     protected void DropPrimaryItems()
     {
         if(CharacterControllerScript.ItemInHand) CharacterControllerScript.DropItem(CharacterControllerScript.ItemInHand);
-        if (CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.DropItem(CharacterControllerScript.ItemInHandLeft);
+        if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.DropItem(CharacterControllerScript.ItemInHandLeft);
     }
 
     //--------------------------- updating stats
@@ -234,14 +263,14 @@ public class CharacterStatController : MonoBehaviour
 
     //-----------------------Receveing Stat Updates from Outside
 
-    public bool TakeDamage(float damage, float damageDirectionHorizontal)
+    public bool TakeDamage(float damage, GameObject Attacker)
     {
         var ItemInHand = CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>();
         var ItemInHandLeft = CharacterControllerScript.ItemInHandLeft?.GetComponent<Shield>();
         bool IsAttackingOrBlockingRightHand = (ItemInHand && (ItemInHand.currentState == CurrentStateOfWeapon.Blocking || ItemInHand.currentState == CurrentStateOfWeapon.AttackingSecondary || ItemInHand.currentState == CurrentStateOfWeapon.AttackingPrimary));
         bool IsBlockingLeftHand = ItemInHandLeft && (ItemInHandLeft.currentState == CurrentStateOfWeapon.Blocking);
 
-        if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && (gameObject.transform.localScale.x/3) == -damageDirectionHorizontal)
+        if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && gameObject.transform.localScale.x/3 == -Attacker.transform.localScale.x/3)
         {
             if (IsBlockingLeftHand)
             {
@@ -261,8 +290,8 @@ public class CharacterStatController : MonoBehaviour
         }
         else
         {
-            CurrentStatStateController(CurrentStatState.Damaged);
-            DamageDirectionHorizontal = damageDirectionHorizontal;
+            CurrentStatStateController(CurrentStatState.Damaged, Attacker);
+            DamageDirectionHorizontal = Attacker.transform.localScale.x / 3;
             Health -= damage;
             Mathf.Clamp(Health, 0, baseHealth);
 

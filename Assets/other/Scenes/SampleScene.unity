@@ -607,6 +607,10 @@ PrefabInstance:
       propertyPath: m_ConnectedAnchor.x
       value: -0.07999962
       objectReference: {fileID: 0}
+    - target: {fileID: 3659271190073669100, guid: 31952a72424bd23418c59c14e94a9e50, type: 3}
+      propertyPath: RaycastIgnoreLayer.m_Bits
+      value: 2376
+      objectReference: {fileID: 0}
     - target: {fileID: 4406598818498172295, guid: 31952a72424bd23418c59c14e94a9e50, type: 3}
       propertyPath: m_IsActive
       value: 1
