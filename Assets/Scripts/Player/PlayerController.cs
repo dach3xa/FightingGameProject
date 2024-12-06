@@ -78,55 +78,100 @@ public class PlayerController : BaseCharacterController
     //------------------------------- handle user input Attack/Block
     private void HandleUserInputAction()
     {
-        //Debug.Log(ItemInHand?.tag);
-        if (IsHolding)
+        if (Input.GetMouseButtonDown(0))
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                Debug.Log("AttackingPrimary!!");
+            Attack("Primary");
+        }
+        if (Input.GetMouseButtonDown(1))
+        {
+            StartBlocking();
+        }
+        else if (Input.GetMouseButtonUp(1))
+        {
 
-                if (!ItemInHand || (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield && ItemInHandLeft.GetComponent<Shield>().currentState == CurrentStateOfWeapon.Blocking)){
-                    return;
-                }
-                //do the attack
-                var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
-                currentWeapon.AttackPrimary();
-            }
+            StopBlocking();
+        }
 
-            if (Input.GetMouseButtonDown(1))
-            {
-                //do the Block
-                IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
-                currentItem.BlockStart();
-            }
-            else if (Input.GetMouseButtonUp(1))
-            {
-                IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
-                currentItem.BlockEnd();
-            }
+        if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+        {
+            //stab em'
+            Attack("Secondary");
+        }
 
-
-            if (Input.GetAxis("Mouse ScrollWheel") > 0f)
-            {
-                //stab em'
-                if(!ItemInHand || (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield && ItemInHandLeft.GetComponent<Shield>().currentState == CurrentStateOfWeapon.Blocking)){
-                    return;
-                }
-
-                var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
-                currentWeapon.AttackSecondary();
-            }
-            
-
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                Debug.Log("Calling the cancel event!");
-                var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
-
-                currentWeapon.CancelAttack();
-            }
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            CancelAttack();
         }
     }
+
+    private void Attack(string PrimaryOrSecondary)
+    {
+
+        if (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield && ItemInHandLeft.GetComponent<Shield>().currentState == CurrentStateOfWeapon.Blocking)
+        {
+            return;
+        }
+
+        if (!ItemInHand)
+        {
+            if (!ItemInHandLeft)
+            {
+                TakeItem("TwoHandedFist");
+            }
+
+            return;//one handed fist here
+        }
+
+        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
+
+        if(PrimaryOrSecondary == "Primary")
+        {
+            currentWeapon.AttackPrimary();
+        }
+        else if(PrimaryOrSecondary == "Secondary")
+        {
+            currentWeapon.AttackSecondary();
+        }
+    }
+
+    private void StartBlocking()
+    {
+        if (IsAttackingCheck().Item2)
+        {
+            return;
+        }
+
+        if (!ItemInHand)
+        {
+            if (!ItemInHandLeft)
+            {
+                TakeItem("TwoHandedFist");
+            }
+        }
+
+        IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
+        currentItem.BlockStart();
+    }
+
+    private void StopBlocking()
+    {
+        if (!IsHolding)
+        {
+            return;
+        }
+
+        IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
+        currentItem.BlockEnd();
+    }
+
+    private void CancelAttack()
+    {
+        Debug.Log("Calling the cancel event!");
+        var currentWeapon = ItemInHand?.GetComponent<WeaponMelee>();
+
+        currentWeapon?.CancelAttack();
+    }
+
     //------------------------------rotating body parts according to mouse position
     private void HandleRotate()
     {

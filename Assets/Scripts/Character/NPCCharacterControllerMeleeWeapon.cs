@@ -95,20 +95,14 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
     protected override void AttackPattern(ref float AttackCoolDownTimer)
     {
         var currentWeapon = ItemInHand?.GetComponent<WeaponMelee>();
-
-        var EnemyCurrentHoldingLayerRight = EnemyFocused.GetComponent<BaseCharacterController>().CurrentAnimatorHoldingLayerRight;
-        AnimatorStateInfo? EnemyAnimatorStateInfo = null;
-        if (EnemyFocused.GetComponent<Animator>().GetLayerWeight(EnemyCurrentHoldingLayerRight) > 0)
-        {
-            EnemyAnimatorStateInfo = EnemyFocused.GetComponent<Animator>().GetCurrentAnimatorStateInfo(EnemyCurrentHoldingLayerRight);
-        }
+        var EnemyController = EnemyFocused.GetComponent<BaseCharacterController>();
 
         float AttackCoolDown = UnityEngine.Random.Range(AttackCoolDownRangeMin, AttackCoolDownRangeMax);
         var EnemyWeapon = EnemyFocused.GetComponent<BaseCharacterController>().ItemInHand?.GetComponent<WeaponMelee>();
 
         if (EnemyWeapon != null)
         {
-            if (DistenceToEnemy < DistenceToEnemyStartBlocking && characterStatController.Stamina > 0 && (EnemyAnimatorStateInfo.HasValue && EnemyAnimatorStateInfo.Value.IsName("PrimaryAttack") || EnemyAnimatorStateInfo.Value.IsName("PrimaryAttack2") || EnemyAnimatorStateInfo.Value.IsName("SecondaryAttack")))
+            if (DistenceToEnemy < DistenceToEnemyStartBlocking && characterStatController.Stamina > 0 && EnemyController.IsAttackingCheck().Item2 )
             {
                 block(currentWeapon);
             }

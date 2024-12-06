@@ -9,6 +9,13 @@ public abstract class BaseCharacterController : MonoBehaviour
     protected GameObject Torso;
     protected GameObject Head;
 
+    Dictionary<int, string> AttackStateNames = new Dictionary<int, string>
+    {
+        { Animator.StringToHash("PrimaryAttack"), "PrimaryAttack" },
+        { Animator.StringToHash("PrimaryAttack2"), "PrimaryAttack2" },
+        { Animator.StringToHash("SecondaryAttack"), "SecondaryAttack" },
+    };
+
     public Dictionary<string, AudioSource> SoundEffects;
 
     protected GameObject ArmLeft;
@@ -139,6 +146,22 @@ public abstract class BaseCharacterController : MonoBehaviour
         }
 
         Grounded = false;
+    }
+    //--------------IsAttackingCheck -------------------------
+
+    public (string, bool) IsAttackingCheck()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(CurrentAnimatorHoldingLayerRight);
+        if (ItemInHand && (AttackStateNames.ContainsKey(stateInfo.shortNameHash)))
+        {
+            Debug.Log("is Attacking!");
+            return (AttackStateNames[stateInfo.shortNameHash], true);
+        }
+        else
+        {
+            return ("not Attacking", false);
+        }
+        
     }
 
     //--------------animation events -------------------------
@@ -295,7 +318,7 @@ public abstract class BaseCharacterController : MonoBehaviour
         animator.SetBool("IsHolding", true);
     }
 
-    protected void DisablePreviousItem(GameObject itemInHand)
+    public void DisablePreviousItem(GameObject itemInHand)
     {
         if (itemInHand)
         {
@@ -308,10 +331,12 @@ public abstract class BaseCharacterController : MonoBehaviour
             if(itemInHand == ItemInHand)
             {
                 ItemInHand = null;
+                animator.SetLayerWeight(CurrentAnimatorHoldingLayerLeft, 0);
             }
             else if(itemInHand == ItemInHandLeft)
             {
                 ItemInHandLeft = null;
+                animator.SetLayerWeight(CurrentAnimatorHoldingLayerLeft, 0);
             }
         }
     }
@@ -351,10 +376,9 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     public void DropItem(GameObject item)
     {
-        if (!item) return;//null check
+        if (!item) return;
 
         DisablePreviousItem(item);
 
-        //dropp
     }
 }

@@ -37,8 +37,8 @@ public class WeaponMelee : HoldableItem, IBlockable
 
     protected float ActionCoolDownTimer = 0;
     protected float ActionCoolDownBlock = 1.1f;
-    protected float ActionCoolDownAttackPrimary = 1.2f;
-    protected float ActionCoolDownAttackSecondary = 1.15f;
+    protected float ActionCoolDownAttackPrimary = 1.3f;
+    protected float ActionCoolDownAttackSecondary = 1.3f;
     protected void Start()
     {
         base.Start();
@@ -108,6 +108,16 @@ public class WeaponMelee : HoldableItem, IBlockable
             }
             EnemiesHitWhileInAttackState.Add(collision.gameObject);
         }
+    }
+
+    public void SwordsClashed(GameObject Enemy)
+    {
+        Debug.Log("Swords Clashed!");
+        HoldersAnimator.SetTrigger("Blocked");
+
+        currentState = CurrentStateOfWeapon.None;
+        ActionCoolDownTimer = 0;
+        EnemiesHitWhileInAttackState.Add(Enemy);
     }
 
     public override void OnHolderDamaged()

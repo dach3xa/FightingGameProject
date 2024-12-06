@@ -112,14 +112,11 @@ public class CharacterStatController : MonoBehaviour
         if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = false;
 
         GameObject attacker = (GameObject)AdditionalInfo;
-        Animator attackerAnimator = attacker.GetComponent<Animator>();
-
-        AnimatorStateInfo attackerAnimatorStateInfo = attackerAnimator.GetCurrentAnimatorStateInfo(attacker.GetComponent<BaseCharacterController>().CurrentAnimatorHoldingLayerRight);
+        BaseCharacterController attackerController = attacker.GetComponent<BaseCharacterController>();
 
         if((gameObject.transform.localScale.x / 3) == -attacker.transform.localScale.x / 3)
         {
-            Debug.Log("towards me damaged");
-            if (attackerAnimatorStateInfo.IsName("PrimaryAttack") || attackerAnimatorStateInfo.IsName("SecondaryAttack"))
+            if (attackerController.IsAttackingCheck().Item1 == "PrimaryAttack" || attackerController.IsAttackingCheck().Item1 == "SecondaryAttack")
             {
                 animator.Play("DamagedBottom", 0, 0f);
                 Debug.Log("DamagedBottom!");
@@ -131,7 +128,7 @@ public class CharacterStatController : MonoBehaviour
         }
         else
         {
-            if (attackerAnimatorStateInfo.IsName("SecondaryAttack"))
+            if (attackerController.IsAttackingCheck().Item1 == "SecondaryAttack" || attackerController.IsAttackingCheck().Item1 == "PrimaryAttack2")
             {
                 animator.Play("Damaged", 0, 0f);
             }
@@ -276,9 +273,16 @@ public class CharacterStatController : MonoBehaviour
             {
                 ItemInHandLeft.BlockImpact();
             }
-            else if(IsAttackingOrBlockingRightHand && ItemInHand.currentState == CurrentStateOfWeapon.Blocking)
+            else if(IsAttackingOrBlockingRightHand)
             {
-                ItemInHand.BlockImpact();
+                if(ItemInHand.currentState == CurrentStateOfWeapon.Blocking)
+                {
+                    ItemInHand.BlockImpact();
+                }
+                else
+                {
+                    ItemInHand.SwordsClashed(gameObject);
+                }
             }
 
             Health -= damage / 10;
