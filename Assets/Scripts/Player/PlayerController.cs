@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -101,6 +102,14 @@ public class PlayerController : BaseCharacterController
         if (Input.GetKeyDown(KeyCode.Q))
         {
             CancelAttack();
+        }
+
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            if (!IsHolding) return;
+
+            if (ItemInHand) DropItem(ItemInHand);
+            else if (ItemInHandLeft) DropItem(ItemInHandLeft);
         }
     }
 
@@ -213,23 +222,55 @@ public class PlayerController : BaseCharacterController
     }
     private void RotatePlayerSpriteBodyAndHead(float angleToMouse)
     {
-        Torso.transform.rotation = Quaternion.Euler(new Vector3(Torso.transform.rotation.x, Torso.transform.rotation.y, angleToMouse / (180 / maxTorsoRotation)));
-        Head.transform.rotation = Quaternion.Euler(new Vector3(Head.transform.rotation.x, Head.transform.rotation.y, angleToMouse / (180 / (maxHeadRotation + maxTorsoRotation))));
+        TorsoPivot.transform.rotation = Quaternion.Euler(new Vector3(TorsoPivot.transform.rotation.x, TorsoPivot.transform.rotation.y, angleToMouse / (180 / maxTorsoRotation)));
+        HeadPivot.transform.rotation = Quaternion.Euler(new Vector3(HeadPivot.transform.rotation.x, HeadPivot.transform.rotation.y, angleToMouse / (180 / (maxHeadRotation + maxTorsoRotation))));
     }
 
     private void RotatePlayerSpriteHands(float angleToMouse)
     {
         if (IsHolding)
         {
+           
+            Debug.Log("IsHolding!");
             if (ItemInHand && ItemInHand.GetComponent<SpriteRenderer>().enabled)
             {
-                ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
+                Debug.Log("IsHolding right!");
+                Debug.Log(ItemInHand);
+                ArmRightPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmRightPivot.transform.rotation.x, ArmRightPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
+            }
+            else if(ArmRightPivot.transform.rotation.z != -3.7f)
+            {
+                BringDownToNormal(ArmRightPivot);
             }
 
             if ((ItemInHand && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded && ItemInHand.GetComponent<SpriteRenderer>().enabled) || (ItemInHandLeft && ItemInHandLeft.GetComponent<SpriteRenderer>().enabled))
             {
-                ArmLeft.transform.rotation = Quaternion.Euler(new Vector3(ArmLeft.transform.rotation.x, ArmLeft.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
+                Debug.Log("IsHolding Left!");
+                ArmLeftPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmLeftPivot.transform.rotation.x, ArmLeftPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
             }
+            else if (ArmLeftPivot.transform.rotation.z != -3.7f)
+            {
+                BringDownToNormal(ArmLeftPivot);
+            }
+        }
+        else if(ArmRightPivot.transform.rotation.z != -3.7 || ArmLeftPivot.transform.rotation.z != -3.7f)
+        {
+            BringDownToNormal(ArmRightPivot);
+            BringDownToNormal(ArmLeftPivot);
+        }
+    }
+
+    private void BringDownToNormal(GameObject ArmPivot)
+    {
+        Debug.Log(ArmPivot.transform.localEulerAngles.z);
+
+        if(ArmPivot.transform.localEulerAngles.z > 1f && ArmPivot.transform.localEulerAngles.z < 180)
+        {
+            ArmPivot.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, ArmPivot.transform.localEulerAngles.z - 120 * Time.deltaTime));
+        }
+        else if (ArmPivot.transform.localEulerAngles.z < 359f && ArmPivot.transform.localEulerAngles.z > 180f)
+        {
+            ArmPivot.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, ArmPivot.transform.localEulerAngles.z + 120 * Time.deltaTime));
         }
     }
 

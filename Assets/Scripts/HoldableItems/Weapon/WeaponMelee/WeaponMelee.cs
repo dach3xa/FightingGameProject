@@ -76,16 +76,22 @@ public class WeaponMelee : HoldableItem, IBlockable
     {
         if (currentState == CurrentStateOfWeapon.AttackingPrimary || currentState == CurrentStateOfWeapon.AttackingSecondary)
         {
-            float offsetAngle = WeaponOffsetAngle;
-            float angle = transform.eulerAngles.z + offsetAngle; // Add an offset angle
-            Vector2 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-            RaycastHit2D EnemiesHit = Physics2D.CircleCast(transform.position, WidthOfWeapon, direction, HeightOfWeapon, HolderController.EnemyLayer);
+            var EnemyHitColliders = DrawingCollider();
 
-            if (EnemiesHit)
+            if (EnemyHitColliders)
             {
-                CheckEnemyHit(EnemiesHit.collider);
+                CheckEnemyHit(EnemyHitColliders);
             }
         }
+    }
+
+    virtual protected Collider2D DrawingCollider()
+    {
+        float offsetAngle = WeaponOffsetAngle;
+        float angle = transform.eulerAngles.z + offsetAngle; // Add an offset angle
+        Vector2 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+        RaycastHit2D EnemiesHit = Physics2D.CircleCast(transform.position, WidthOfWeapon, direction, HeightOfWeapon, HolderController.EnemyLayer);
+        return EnemiesHit.collider;
     }
 
     protected void CheckEnemyHit(Collider2D collision)

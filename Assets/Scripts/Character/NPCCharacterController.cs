@@ -89,7 +89,7 @@ public abstract class NPCCharacterController : BaseCharacterController
         {
             Vector2 DirectionToEnemy = (Enemy.gameObject.transform.position - transform.position).normalized;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, DirectionToEnemy, EnemySeeRadius, ~RaycastIgnoreLayer);
-            float AngleToEnemy = Vector2.Angle(Head.transform.right * (transform.localScale.x / 3), DirectionToEnemy);
+            float AngleToEnemy = Vector2.Angle(HeadPivot.transform.right * (transform.localScale.x / 3), DirectionToEnemy);
             Debug.Log(AngleToEnemy);
             if(hit) Debug.Log(hit.collider.gameObject);
             Debug.Log(Enemy.gameObject);
@@ -316,10 +316,10 @@ public abstract class NPCCharacterController : BaseCharacterController
                 angletoTargetCalculation = angletoTargetCalculation + 360;//dont ask me why this works(it does) 
             }
 
-            Torso.transform.rotation = Quaternion.Euler(new Vector3(Torso.transform.rotation.x, Torso.transform.rotation.y, angletoTargetCalculation / (180 / maxTorsoRotation)));
-            Head.transform.rotation = Quaternion.Euler(new Vector3(Head.transform.rotation.x, Head.transform.rotation.y, angletoTargetCalculation / (180 / (maxHeadRotation + maxTorsoRotation))));
-            ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angletoTargetCalculation / (180 / (maxHandRotation + maxTorsoRotation))));
-            ArmLeft.transform.rotation = Quaternion.Euler(new Vector3(ArmLeft.transform.rotation.x, ArmLeft.transform.rotation.y, angletoTargetCalculation / (180 / (maxHandRotation + maxTorsoRotation))));
+            TorsoPivot.transform.rotation = Quaternion.Euler(new Vector3(TorsoPivot.transform.rotation.x, TorsoPivot.transform.rotation.y, angletoTargetCalculation / (180 / maxTorsoRotation)));
+            HeadPivot.transform.rotation = Quaternion.Euler(new Vector3(HeadPivot.transform.rotation.x, HeadPivot.transform.rotation.y, angletoTargetCalculation / (180 / (maxHeadRotation + maxTorsoRotation))));
+            ArmRightPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmRightPivot.transform.rotation.x, ArmRightPivot.transform.rotation.y, angletoTargetCalculation / (180 / (maxHandRotation + maxTorsoRotation))));
+            ArmLeftPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmLeftPivot.transform.rotation.x, ArmLeftPivot.transform.rotation.y, angletoTargetCalculation / (180 / (maxHandRotation + maxTorsoRotation))));
         }
     }
 
@@ -328,10 +328,10 @@ public abstract class NPCCharacterController : BaseCharacterController
         transform.localScale = new Vector3(3, transform.localScale.y, transform.localScale.z);
         if (currentState != CurrentEnemyState.Idle)
         {
-            Torso.transform.rotation = Quaternion.Euler(new Vector3(Torso.transform.rotation.x, Torso.transform.rotation.y, angleToEnemy / (180 / maxTorsoRotation)));
-            Head.transform.rotation = Quaternion.Euler(new Vector3(Head.transform.rotation.x, Head.transform.rotation.y, angleToEnemy / (180 / (maxHeadRotation + maxTorsoRotation))));
-            ArmRight.transform.rotation = Quaternion.Euler(new Vector3(ArmRight.transform.rotation.x, ArmRight.transform.rotation.y, angleToEnemy / (180 / (maxHandRotation + maxTorsoRotation))));
-            ArmLeft.transform.rotation = Quaternion.Euler(new Vector3(ArmLeft.transform.rotation.x, ArmLeft.transform.rotation.y, angleToEnemy / (180 / (maxHandRotation + maxTorsoRotation))));
+            TorsoPivot.transform.rotation = Quaternion.Euler(new Vector3(TorsoPivot.transform.rotation.x, TorsoPivot.transform.rotation.y, angleToEnemy / (180 / maxTorsoRotation)));
+            HeadPivot.transform.rotation = Quaternion.Euler(new Vector3(HeadPivot.transform.rotation.x, HeadPivot.transform.rotation.y, angleToEnemy / (180 / (maxHeadRotation + maxTorsoRotation))));
+            ArmRightPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmRightPivot.transform.rotation.x, ArmRightPivot.transform.rotation.y, angleToEnemy / (180 / (maxHandRotation + maxTorsoRotation))));
+            ArmLeftPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmLeftPivot.transform.rotation.x, ArmLeftPivot.transform.rotation.y, angleToEnemy / (180 / (maxHandRotation + maxTorsoRotation))));
         }
     }
 }

@@ -6,8 +6,10 @@ using Unity.VisualScripting;
 
 public abstract class BaseCharacterController : MonoBehaviour
 {
-    protected GameObject Torso;
-    protected GameObject Head;
+    protected GameObject TorsoPivot;
+    protected GameObject HeadPivot;
+    protected GameObject ArmLeftPivot;
+    protected GameObject ArmRightPivot;
 
     Dictionary<int, string> AttackStateNames = new Dictionary<int, string>
     {
@@ -17,9 +19,6 @@ public abstract class BaseCharacterController : MonoBehaviour
     };
 
     public Dictionary<string, AudioSource> SoundEffects;
-
-    protected GameObject ArmLeft;
-    protected GameObject ArmRight;
 
     [SerializeField] protected GameObject ItemHolder;
 
@@ -62,13 +61,14 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void Start()
     {
-        Torso = transform.Find("TorsoPivot").gameObject;
-        Head = transform.Find("TorsoPivot/Torso/HeadPivot").gameObject;
+        TorsoPivot = transform.Find("TorsoPivot").gameObject;
+        HeadPivot = transform.Find("TorsoPivot/Torso/HeadPivot").gameObject;
 
-        ArmRight = transform.Find("TorsoPivot/Torso/ArmRightPivot").gameObject;
-        ArmLeft = transform.Find("TorsoPivot/Torso/ArmLeftPivot").gameObject;
+        ArmRightPivot = transform.Find("TorsoPivot/Torso/ArmRightPivot").gameObject;
+        ArmLeftPivot = transform.Find("TorsoPivot/Torso/ArmLeftPivot").gameObject;
 
         ItemInHand = null;
+        ItemHolderLeft = transform.Find("TorsoPivot/Torso/ArmLeftPivot/ArmLeft/ForeArmLeft/ItemHolder").gameObject;
         ItemHolder = transform.Find("TorsoPivot/Torso/ArmRightPivot/ArmRight/ForeArmRight/ItemHolder").gameObject;
 
         Items = new List<GameObject>();
@@ -307,7 +307,6 @@ public abstract class BaseCharacterController : MonoBehaviour
         if (ItemInHand != null)
         {
             DisablePreviousItem(ItemInHand);
-            ItemInHand = null;
         }
         ItemInHand = OneHandedWeapon;
 
@@ -322,22 +321,20 @@ public abstract class BaseCharacterController : MonoBehaviour
     {
         if (itemInHand)
         {
+
             itemInHand.GetComponent<HoldableItem>().enabled = false;
             itemInHand.GetComponent<SpriteRenderer>().enabled = false;
             itemInHand.GetComponent<BoxCollider2D>().enabled = false;
 
-            animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
-
-            if(itemInHand == ItemInHand)
+            if (itemInHand == ItemInHand)
             {
                 ItemInHand = null;
-                animator.SetLayerWeight(CurrentAnimatorHoldingLayerLeft, 0);
             }
             else if(itemInHand == ItemInHandLeft)
             {
                 ItemInHandLeft = null;
-                animator.SetLayerWeight(CurrentAnimatorHoldingLayerLeft, 0);
             }
+            animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
         }
     }
 
