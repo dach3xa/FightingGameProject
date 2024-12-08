@@ -10,7 +10,7 @@ public enum CurrentStateOfWeapon
     AttackingSecondary,
     Blocking
 }
-public class WeaponMelee : HoldableItem, IBlockable
+public abstract class WeaponMelee : HoldableItem, IBlockable
 {
     //Weapon info
     [SerializeField] public CurrentStateOfWeapon currentState { get; set; }//change in future
@@ -28,17 +28,17 @@ public class WeaponMelee : HoldableItem, IBlockable
     [SerializeField] protected List<GameObject> EnemiesHitWhileInAttackState = new List<GameObject>();
 
     //combo Attack counter 
-    public int currentComboAnimationAttackPrimary = 0;
+    [SerializeField] public int currentComboAnimationAttackPrimary = 0;
     [SerializeField] protected int currentPlayingComboAnimationAttackPrimary = 0;
 
     //cooldowns
-    protected float comboCoolDownTimer = 0;
-    protected float comboMaxTime = 0.6f;
+    [SerializeField] protected float comboCoolDownTimer = 0;
+    [SerializeField] protected float comboMaxTime = 0.8f;
 
-    protected float ActionCoolDownTimer = 0;
-    protected float ActionCoolDownBlock = 1.1f;
-    protected float ActionCoolDownAttackPrimary = 1.3f;
-    protected float ActionCoolDownAttackSecondary = 1.3f;
+    [SerializeField] protected float ActionCoolDownTimer = 0;
+    [SerializeField] protected float ActionCoolDownBlock = 1.1f;
+    [SerializeField] protected float ActionCoolDownAttackPrimary = 1.3f;
+    [SerializeField] protected float ActionCoolDownAttackSecondary = 1.3f;
     protected void Start()
     {
         base.Start();
@@ -100,12 +100,14 @@ public class WeaponMelee : HoldableItem, IBlockable
         {
             CharacterStatController enemyStats = collision.gameObject.GetComponent<CharacterStatController>();
             float damage = (currentState == CurrentStateOfWeapon.AttackingPrimary) ? BaseAttackValue * PrimaryAttackMultiplier : BaseAttackValue * SecondaryAttackMultiplier;
-            if (!enemyStats.TakeDamage(damage, Holder))
+            if (!enemyStats.RecieveAttack(damage, gameObject))
             {
                 HoldersAnimator.SetTrigger("Blocked");
                 SoundEffects["WeaponMeleeHitSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
                 SoundEffects["WeaponMeleeHitSound"].Play();
                 ActionCoolDownTimer = 0;
+
+                ResetCombo();
             }
             else
             {
@@ -116,37 +118,37 @@ public class WeaponMelee : HoldableItem, IBlockable
         }
     }
 
-    public void SwordsClashed(GameObject Enemy)
+    public virtual bool WeaponsClashed(GameObject Enemy)
     {
-        Debug.Log("Swords Clashed!");
         HoldersAnimator.SetTrigger("Blocked");
-
-        currentState = CurrentStateOfWeapon.None;
-        ActionCoolDownTimer = 0;
         EnemiesHitWhileInAttackState.Add(Enemy);
+        ResetCombo();
+        return true;
     }
 
     public override void OnHolderDamaged()
     {
-        currentComboAnimationAttackPrimary = 0;
-        currentPlayingComboAnimationAttackPrimary = 0;
+        ResetCombo();
 
         ActionCoolDownTimer = 0.5f;
-        currentState = CurrentStateOfWeapon.None;
     }
 
     protected void ResetComboCheck()
     {
-
-        if ((currentComboAnimationAttackPrimary > 0 && comboCoolDownTimer > comboMaxTime))
+        AnimatorStateInfo stateInfo = HoldersAnimator.GetCurrentAnimatorStateInfo(HolderController.CurrentAnimatorHoldingLayerRight);
+        if ((currentComboAnimationAttackPrimary > 0 && comboCoolDownTimer >= comboMaxTime))
         {
-            Debug.Log(comboCoolDownTimer + " : " + comboMaxTime);
             Debug.Log("Resetting combo!");
-            currentPlayingComboAnimationAttackPrimary = 0;
-            currentComboAnimationAttackPrimary = 0;
-            currentState = CurrentStateOfWeapon.None;
+            Debug.Log("comboCoolDownTimer : " + comboCoolDownTimer);
+            ResetCombo();
         }
+    }
 
+    protected void ResetCombo()
+    {
+        currentPlayingComboAnimationAttackPrimary = 0;
+        currentComboAnimationAttackPrimary = 0;
+        currentState = CurrentStateOfWeapon.None;
         HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", currentComboAnimationAttackPrimary);
     }
 
@@ -155,12 +157,10 @@ public class WeaponMelee : HoldableItem, IBlockable
     {
         if ((comboCoolDownTimer <= comboMaxTime && currentComboAnimationAttackPrimary < 3 && currentComboAnimationAttackPrimary > 0|| ActionCoolDownTimer > ActionCoolDownAttackPrimary) && HolderStatController.Stamina > 20f * 1.2f)
         {
+            Debug.Log("Attacking primary!");
             HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", ++currentComboAnimationAttackPrimary);
-
-
             ActionCoolDownTimer = 0;
             comboCoolDownTimer = 0;
-
         }
     }
 
@@ -169,8 +169,6 @@ public class WeaponMelee : HoldableItem, IBlockable
         if (ActionCoolDownTimer >= ActionCoolDownAttackSecondary && HolderStatController.Stamina > 20f * 0.8f && currentState == CurrentStateOfWeapon.None)
         {
             HoldersAnimator.SetTrigger("WeaponMeleeSecondaryAttack");
-
-            ActionCoolDownTimer = 0;
         }
     }
 
@@ -204,9 +202,10 @@ public class WeaponMelee : HoldableItem, IBlockable
         }
     }
 
-    public void BlockImpact()
+    public virtual bool BlockImpact(GameObject AttackingWeapon)
     {
         HoldersAnimator.SetTrigger("Blocked");
+        return true;
     }
 
     public void BlockEnd()
@@ -227,6 +226,9 @@ public class WeaponMelee : HoldableItem, IBlockable
         {
             currentPlayingComboAnimationAttackPrimary++;
         }
+
+        ActionCoolDownTimer = 0;
+        comboCoolDownTimer = 0;
     }
 
     public void AttackStateStartSecondary()
@@ -235,6 +237,7 @@ public class WeaponMelee : HoldableItem, IBlockable
         currentState = CurrentStateOfWeapon.AttackingSecondary;
         SoundEffects["WeaponMeleeThrustSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
         SoundEffects["WeaponMeleeThrustSound"].Play();
+        ActionCoolDownTimer = 0;
     }
 
     public void AttackStateEnd()
@@ -247,6 +250,9 @@ public class WeaponMelee : HoldableItem, IBlockable
         {
             currentComboAnimationAttackPrimary = 0;
             currentPlayingComboAnimationAttackPrimary = 0;
+
+            HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", currentComboAnimationAttackPrimary);
+            Debug.Log("Current playing combo animation is 3 resetting!");
         }
     }
 

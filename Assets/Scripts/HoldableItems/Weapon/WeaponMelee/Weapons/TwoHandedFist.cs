@@ -21,7 +21,7 @@ public class TwoHandedFist : WeaponMelee
         ActionCoolDownBlock = 1.1f;
         ActionCoolDownAttackPrimary = 1.25f;
         ActionCoolDownAttackSecondary = 1.25f;
-        comboMaxTime = 0.6f;
+        comboMaxTime = 0.8f;
 
         //define weapon collider
         WidthOfWeapon = 0.25f;
@@ -58,7 +58,7 @@ public class TwoHandedFist : WeaponMelee
             HolderController.DisablePreviousItem(gameObject);
         }
     }
-
+    //---------Drawing collider------------
     override protected Collider2D DrawingCollider()
     {
         float offsetAngle = WeaponOffsetAngle;
@@ -71,5 +71,36 @@ public class TwoHandedFist : WeaponMelee
         Debug.Log("Enemies Hit Right hand: " + EnemiesHitRightHand);
         if (EnemiesHitLeftHand) return EnemiesHitLeftHand.collider;
         else return EnemiesHitRightHand.collider;
+    }
+
+    //---------Weapon Clashed-----------------
+
+    public virtual bool WeaponsClashed(GameObject Enemy)
+    {
+        if(Enemy.GetComponent<HoldableItem>() is TwoHandedFist)
+        {
+            HoldersAnimator.SetTrigger("Blocked");
+            EnemiesHitWhileInAttackState.Add(Enemy);
+            ResetCombo();
+            return true;
+        }
+        else
+        {
+            HoldersAnimator.SetTrigger("Blocked");
+            ResetCombo();
+            return false;
+        }
+    }
+
+    //-------block impact----------------------
+
+    public override bool BlockImpact(GameObject AttackingWeapon)
+    {
+        if(AttackingWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
+        {
+            HoldersAnimator.SetTrigger("Blocked");
+            return true;
+        }
+        return false;
     }
 }

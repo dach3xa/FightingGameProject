@@ -6114,6 +6114,12 @@ MonoBehaviour:
   EnemiesHitWhileInAttackState: []
   currentComboAnimationAttackPrimary: 0
   currentPlayingComboAnimationAttackPrimary: 0
+  comboCoolDownTimer: 0
+  comboMaxTime: 0.8
+  ActionCoolDownTimer: 0
+  ActionCoolDownBlock: 1.1
+  ActionCoolDownAttackPrimary: 1.3
+  ActionCoolDownAttackSecondary: 1.3
   ItemHolderLeftHand: {fileID: 1670663953}
   ItemHolderRightHand: {fileID: 1511263451}
 --- !u!1001 &1428637432
@@ -6385,13 +6391,21 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5092900250952496088, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
+      propertyPath: m_ConnectedAnchor.x
+      value: 0.055153567
+      objectReference: {fileID: 0}
+    - target: {fileID: 5092900250952496088, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
+      propertyPath: m_ConnectedAnchor.y
+      value: 0.22131331
+      objectReference: {fileID: 0}
     - target: {fileID: 5461838742462922276, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_ConnectedAnchor.x
-      value: -0.10054069
+      value: -0.100999996
       objectReference: {fileID: 0}
     - target: {fileID: 5461838742462922276, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_ConnectedAnchor.y
-      value: 0.23917948
+      value: 0.23899996
       objectReference: {fileID: 0}
     - target: {fileID: 5735013916654002223, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6475,7 +6489,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8544471767022111493, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_ConnectedAnchor.x
-      value: -0.08000002
+      value: -0.08000003
       objectReference: {fileID: 0}
     - target: {fileID: 8544471767022111493, guid: 24806fb261c97e94cbdb18a838811941, type: 3}
       propertyPath: m_ConnectedAnchor.y

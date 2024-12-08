@@ -3,7 +3,7 @@ using UnityEngine;
 public interface IBlockable
 {
     public void BlockStart();
-    public void BlockImpact();
+    public bool BlockImpact(GameObject AttackingWeapon);
     public void BlockEnd();
     //--------------------animation events
     public void BlockStateStart();

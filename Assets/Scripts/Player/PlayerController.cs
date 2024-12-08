@@ -230,12 +230,9 @@ public class PlayerController : BaseCharacterController
     {
         if (IsHolding)
         {
-           
-            Debug.Log("IsHolding!");
+          
             if (ItemInHand && ItemInHand.GetComponent<SpriteRenderer>().enabled)
             {
-                Debug.Log("IsHolding right!");
-                Debug.Log(ItemInHand);
                 ArmRightPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmRightPivot.transform.rotation.x, ArmRightPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
             }
             else if(ArmRightPivot.transform.rotation.z != -3.7f)
@@ -245,7 +242,6 @@ public class PlayerController : BaseCharacterController
 
             if ((ItemInHand && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded && ItemInHand.GetComponent<SpriteRenderer>().enabled) || (ItemInHandLeft && ItemInHandLeft.GetComponent<SpriteRenderer>().enabled))
             {
-                Debug.Log("IsHolding Left!");
                 ArmLeftPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmLeftPivot.transform.rotation.x, ArmLeftPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
             }
             else if (ArmLeftPivot.transform.rotation.z != -3.7f)
@@ -262,7 +258,6 @@ public class PlayerController : BaseCharacterController
 
     private void BringDownToNormal(GameObject ArmPivot)
     {
-        Debug.Log(ArmPivot.transform.localEulerAngles.z);
 
         if(ArmPivot.transform.localEulerAngles.z > 1f && ArmPivot.transform.localEulerAngles.z < 180)
         {

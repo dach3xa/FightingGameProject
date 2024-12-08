@@ -11,7 +11,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     protected GameObject ArmLeftPivot;
     protected GameObject ArmRightPivot;
 
-    Dictionary<int, string> AttackStateNames = new Dictionary<int, string>
+    public Dictionary<int, string> AttackStateNames = new Dictionary<int, string>
     {
         { Animator.StringToHash("PrimaryAttack"), "PrimaryAttack" },
         { Animator.StringToHash("PrimaryAttack2"), "PrimaryAttack2" },
@@ -149,17 +149,17 @@ public abstract class BaseCharacterController : MonoBehaviour
     }
     //--------------IsAttackingCheck -------------------------
 
-    public (string, bool) IsAttackingCheck()
+    public (string, HoldableItem, bool) IsAttackingCheck()
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(CurrentAnimatorHoldingLayerRight);
         if (ItemInHand && (AttackStateNames.ContainsKey(stateInfo.shortNameHash)))
         {
             Debug.Log("is Attacking!");
-            return (AttackStateNames[stateInfo.shortNameHash], true);
+            return (AttackStateNames[stateInfo.shortNameHash], ItemInHand.GetComponent<WeaponMelee>(), true);
         }
         else
         {
-            return ("not Attacking", false);
+            return ("not Attacking", null, false);
         }
         
     }
