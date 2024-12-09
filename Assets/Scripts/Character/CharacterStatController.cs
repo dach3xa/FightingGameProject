@@ -131,13 +131,14 @@ public class CharacterStatController : MonoBehaviour
     protected void HandleDamagedAnimationWeaponMelee(GameObject AttackerWeapon)
     {
         BaseCharacterController attackerController = AttackerWeapon.transform.root.GetComponent<BaseCharacterController>();
-        if ((gameObject.transform.localScale.x / 3) == -AttackerWeapon.transform.localScale.x / 3)
+        if (Mathf.Sign(gameObject.transform.localScale.x) == Mathf.Sign(-AttackerWeapon.transform.lossyScale.x))
         {
             if (attackerController.IsAttackingCheck().Item1 == "PrimaryAttack" || attackerController.IsAttackingCheck().Item1 == "SecondaryAttack")
             {
                 if (AttackerWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
                 {
                     animator.Play("Damaged", 0, 0f);
+                    return;
                 }
 
                 animator.Play("DamagedBottom", 0, 0f);
@@ -154,6 +155,7 @@ public class CharacterStatController : MonoBehaviour
                 if (AttackerWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
                 {
                     animator.Play("DamagedBottom", 0, 0f);
+                    return;
                 }
 
                 animator.Play("Damaged", 0, 0f);
@@ -290,7 +292,7 @@ public class CharacterStatController : MonoBehaviour
         bool IsAttackingOrBlockingRightHand = (ItemInHand && (ItemInHand.currentState == CurrentStateOfWeapon.Blocking || ItemInHand.currentState == CurrentStateOfWeapon.AttackingSecondary || ItemInHand.currentState == CurrentStateOfWeapon.AttackingPrimary));
         bool IsBlockingLeftHand = ItemInHandLeft && (ItemInHandLeft.currentState == CurrentStateOfWeapon.Blocking);
 
-        if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && gameObject.transform.localScale.x/3 == -AttackerWeapon.transform.localScale.x/3)
+        if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && Mathf.Sign(gameObject.transform.localScale.x) == Mathf.Sign(-AttackerWeapon.transform.lossyScale.x))
         {
             if (IsBlockingLeftHand)
             {
@@ -312,7 +314,7 @@ public class CharacterStatController : MonoBehaviour
                         return true;
                     }
                 }
-                else if(ItemInHand.WeaponsClashed(gameObject) == false)
+                else if(ItemInHand.WeaponsClashed(CharacterControllerScript.ItemInHand) == false)
                 {
                     Debug.Log("Weapons clashed take damage");
                     TakeDamage(damage, AttackerWeapon);
@@ -329,6 +331,7 @@ public class CharacterStatController : MonoBehaviour
         }
         else
         {
+            Debug.Log("take damage not blocking or attacking!");
             TakeDamage(damage, AttackerWeapon);
             return true;
         }
@@ -337,7 +340,7 @@ public class CharacterStatController : MonoBehaviour
     protected void TakeDamage(float damage, GameObject AttackerWeapon)
     {
         CurrentStatStateController(CurrentStatState.Damaged, AttackerWeapon);
-        DamageDirectionHorizontal = AttackerWeapon.transform.localScale.x / 3;
+        DamageDirectionHorizontal = Mathf.Sign(AttackerWeapon.transform.lossyScale.x);
         Health -= damage;
         Mathf.Clamp(Health, 0, baseHealth);
     }

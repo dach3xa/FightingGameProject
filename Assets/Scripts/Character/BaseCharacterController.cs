@@ -154,7 +154,6 @@ public abstract class BaseCharacterController : MonoBehaviour
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(CurrentAnimatorHoldingLayerRight);
         if (ItemInHand && (AttackStateNames.ContainsKey(stateInfo.shortNameHash)))
         {
-            Debug.Log("is Attacking!");
             return (AttackStateNames[stateInfo.shortNameHash], ItemInHand.GetComponent<WeaponMelee>(), true);
         }
         else

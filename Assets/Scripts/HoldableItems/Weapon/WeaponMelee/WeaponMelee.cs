@@ -118,10 +118,11 @@ public abstract class WeaponMelee : HoldableItem, IBlockable
         }
     }
 
-    public virtual bool WeaponsClashed(GameObject Enemy)
+    public virtual bool WeaponsClashed(GameObject EnemyWeapon)
     {
         HoldersAnimator.SetTrigger("Blocked");
-        EnemiesHitWhileInAttackState.Add(Enemy);
+        EnemiesHitWhileInAttackState.Add(EnemyWeapon.transform.root.gameObject);
+
         ResetCombo();
         return true;
     }

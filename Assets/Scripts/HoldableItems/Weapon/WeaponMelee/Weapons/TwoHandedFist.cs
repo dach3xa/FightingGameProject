@@ -29,6 +29,11 @@ public class TwoHandedFist : WeaponMelee
         WeaponOffsetAngle = 90f;
     }
 
+    private void OnEnable()
+    {
+        ActionCoolDownTimer = 1.3f;
+    }
+
     void Update()
     {
         UpdateTimers();
@@ -67,20 +72,18 @@ public class TwoHandedFist : WeaponMelee
         RaycastHit2D EnemiesHitLeftHand = Physics2D.CircleCast(ItemHolderLeftHand.transform.position, WidthOfWeapon, direction, HeightOfWeapon, HolderController.EnemyLayer);
         RaycastHit2D EnemiesHitRightHand = Physics2D.CircleCast(ItemHolderRightHand.transform.position, WidthOfWeapon, direction, HeightOfWeapon, HolderController.EnemyLayer);
 
-        Debug.Log("Enemies Hit left hand: " + EnemiesHitLeftHand);
-        Debug.Log("Enemies Hit Right hand: " + EnemiesHitRightHand);
         if (EnemiesHitLeftHand) return EnemiesHitLeftHand.collider;
         else return EnemiesHitRightHand.collider;
     }
 
     //---------Weapon Clashed-----------------
 
-    public virtual bool WeaponsClashed(GameObject Enemy)
+    public override bool WeaponsClashed(GameObject EnemyWeapon)
     {
-        if(Enemy.GetComponent<HoldableItem>() is TwoHandedFist)
+        if(EnemyWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
         {
             HoldersAnimator.SetTrigger("Blocked");
-            EnemiesHitWhileInAttackState.Add(Enemy);
+            EnemiesHitWhileInAttackState.Add(EnemyWeapon);
             ResetCombo();
             return true;
         }
