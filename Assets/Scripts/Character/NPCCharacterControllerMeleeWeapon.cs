@@ -7,12 +7,12 @@ using System.Linq;
 public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
 {
     abstract protected float CombatStateStartDistence { get; set; }
-    abstract protected float MaxDistenceToEnemyStop { get; set; }
-    abstract protected float MinDistenceToEnemyStop { get; set; }
+    protected float MaxDistenceToEnemyStop { get; set; }
+    protected float MinDistenceToEnemyStop { get; set; }
     abstract protected float AttackCoolDownRangeMin { get; set; }
     abstract protected float AttackCoolDownRangeMax { get; set; }
     abstract protected float DistenceToEnemyStartBlocking { get; set; }
-    abstract protected float DistenceToEnemyStartAttacking { get; set; }
+    protected float DistenceToEnemyStartAttacking { get; set; }
     abstract protected float BlockChance { get; set; }
     protected void Start()
     {
@@ -47,6 +47,9 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         {
             GameObject[] MeleeWeapons = Items.Where(Item => Item.GetComponent<WeaponMelee>() != null).ToArray();
             TakeItem(MeleeWeapons[UnityEngine.Random.Range(0, MeleeWeapons.Length)].name);
+            MaxDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfWeapon * (1/2);
+            MinDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfWeapon * (1/4);
+            DistenceToEnemyStartAttacking = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfWeapon;
         }
         ChangeMovePositionEnemySaw();
     }

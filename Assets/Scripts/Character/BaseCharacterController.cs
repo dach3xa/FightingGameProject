@@ -337,6 +337,10 @@ public abstract class BaseCharacterController : MonoBehaviour
         }
     }
 
+    //-----------------Kick-----------------------------
+
+
+
     //-----------------animation controller--------------------
 
     protected void HandleAnimations()

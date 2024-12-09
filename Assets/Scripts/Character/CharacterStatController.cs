@@ -287,39 +287,16 @@ public class CharacterStatController : MonoBehaviour
 
     public bool RecieveAttack(float damage, GameObject AttackerWeapon)
     {
-        var ItemInHand = CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>();
-        var ItemInHandLeft = CharacterControllerScript.ItemInHandLeft?.GetComponent<Shield>();
+        WeaponMelee ItemInHand = CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>();
+        Shield ItemInHandLeft = CharacterControllerScript.ItemInHandLeft?.GetComponent<Shield>();
         bool IsAttackingOrBlockingRightHand = (ItemInHand && (ItemInHand.currentState == CurrentStateOfWeapon.Blocking || ItemInHand.currentState == CurrentStateOfWeapon.AttackingSecondary || ItemInHand.currentState == CurrentStateOfWeapon.AttackingPrimary));
         bool IsBlockingLeftHand = ItemInHandLeft && (ItemInHandLeft.currentState == CurrentStateOfWeapon.Blocking);
 
         if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && Mathf.Sign(gameObject.transform.localScale.x) == Mathf.Sign(-AttackerWeapon.transform.lossyScale.x))
         {
-            if (IsBlockingLeftHand)
+            if(CheckAttackingOrBlockingCurrentWeapon(IsAttackingOrBlockingRightHand, IsBlockingLeftHand, ItemInHand, ItemInHandLeft, damage, AttackerWeapon))
             {
-                if (ItemInHandLeft.BlockImpact(AttackerWeapon) == false) 
-                {
-                    TakeDamage(damage, AttackerWeapon);
-                    return true;
-                }
-            }
-            else if(IsAttackingOrBlockingRightHand)
-            {
-                Debug.Log("Blocking or attacking right hand!");
-                if(ItemInHand.currentState == CurrentStateOfWeapon.Blocking)
-                {
-                    if (ItemInHand.BlockImpact(AttackerWeapon) == false)
-                    {
-                        Debug.Log("Weapon couldnt block take damage");
-                        TakeDamage(damage, AttackerWeapon);
-                        return true;
-                    }
-                }
-                else if(ItemInHand.WeaponsClashed(CharacterControllerScript.ItemInHand) == false)
-                {
-                    Debug.Log("Weapons clashed take damage");
-                    TakeDamage(damage, AttackerWeapon);
-                    return true;
-                }
+                return true;
             }
 
             Health -= damage / 10;
@@ -337,7 +314,39 @@ public class CharacterStatController : MonoBehaviour
         }
     }
 
-    protected void TakeDamage(float damage, GameObject AttackerWeapon)
+    protected bool CheckAttackingOrBlockingCurrentWeapon(bool IsAttackingOrBlockingRightHand, bool IsBlockingLeftHand, WeaponMelee ItemInHand, Shield ItemInHandLeft, float damage, GameObject AttackerWeapon)
+    {
+        if (IsBlockingLeftHand)
+        {
+            if (ItemInHandLeft.BlockImpact(AttackerWeapon) == false)
+            {
+                TakeDamage(damage, AttackerWeapon);
+                return true;
+            }
+        }
+        else if (IsAttackingOrBlockingRightHand)
+        {
+            Debug.Log("Blocking or attacking right hand!");
+            if (ItemInHand.currentState == CurrentStateOfWeapon.Blocking)
+            {
+                if (ItemInHand.BlockImpact(AttackerWeapon) == false)
+                {
+                    Debug.Log("Weapon couldnt block take damage");
+                    TakeDamage(damage, AttackerWeapon);
+                    return true;
+                }
+            }
+            else if (ItemInHand.WeaponsClashed(AttackerWeapon) == false)
+            {
+                Debug.Log("Weapons clashed take damage");
+                TakeDamage(damage, AttackerWeapon);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void TakeDamage(float damage, GameObject AttackerWeapon)
     {
         CurrentStatStateController(CurrentStatState.Damaged, AttackerWeapon);
         DamageDirectionHorizontal = Mathf.Sign(AttackerWeapon.transform.lossyScale.x);

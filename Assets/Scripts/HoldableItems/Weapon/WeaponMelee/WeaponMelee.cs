@@ -13,17 +13,17 @@ public enum CurrentStateOfWeapon
 public abstract class WeaponMelee : HoldableItem, IBlockable
 {
     //Weapon info
-    [SerializeField] public CurrentStateOfWeapon currentState { get; set; }//change in future
-    [SerializeField] protected float BaseAttackValue = 30f;
-    [SerializeField] public float BaseStaminaReduceValue = 20f;
-    [SerializeField] public float PrimaryAttackMultiplier = 1.2f;
-    [SerializeField] public float SecondaryAttackMultiplier = 0.8f;
+    [SerializeField] public CurrentStateOfWeapon currentState { get; protected set; }//change in future
+    [SerializeField] public float BaseAttackValue { get; protected set; } = 30f;
+    [SerializeField] public float BaseStaminaReduceValue { get; protected set; } = 20f;
+    [SerializeField] public float PrimaryAttackMultiplier { get; protected set; } = 1.2f;
+    [SerializeField] public float SecondaryAttackMultiplier { get; protected set; } = 0.8f;
 
     //for creating a dynamic collider
     [SerializeField] protected float WidthOfWeapon = 0.3f;
-    [SerializeField] protected float HeightOfWeapon = 2f;
+    [SerializeField] public float HeightOfWeapon { get; protected set; } = 2f;
     [SerializeField] protected float WeaponOffsetAngle = 90f;
-     
+
     //not to hit repeatedly
     [SerializeField] protected List<GameObject> EnemiesHitWhileInAttackState = new List<GameObject>();
 
@@ -61,7 +61,7 @@ public abstract class WeaponMelee : HoldableItem, IBlockable
         float offsetAngle = WeaponOffsetAngle;
         float angle = transform.eulerAngles.z + offsetAngle; // Add an offset angle
         Vector2 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-        Vector2 endPosition = new Vector2(transform.position.x,transform.position.y) + direction.normalized * HeightOfWeapon;
+        Vector2 endPosition = new Vector2(transform.position.x, transform.position.y) + direction.normalized * HeightOfWeapon;
         Gizmos.DrawWireSphere(endPosition, WidthOfWeapon);
 
         // Draw lines connecting the two circles
@@ -120,10 +120,22 @@ public abstract class WeaponMelee : HoldableItem, IBlockable
 
     public virtual bool WeaponsClashed(GameObject EnemyWeapon)
     {
-        HoldersAnimator.SetTrigger("Blocked");
+        if(!(EnemyWeapon.GetComponent<WeaponMelee>() is TwoHandedFist))
+        {
+            HoldersAnimator.SetTrigger("Blocked");
+            Debug.Log("Melee Weapon Weapons clashed called!");
+            ResetCombo();
+        }
+        else
+        {
+            float damage = (currentState == CurrentStateOfWeapon.AttackingPrimary) ? BaseAttackValue * PrimaryAttackMultiplier : BaseAttackValue * SecondaryAttackMultiplier;
+            if (EnemyWeapon.transform.root.gameObject.GetComponent<CharacterStatController>().RecieveAttack(damage, gameObject))
+            {
+                SoundEffects["WeaponMeleeDamageSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
+                SoundEffects["WeaponMeleeDamageSound"].Play();
+            }
+        }
         EnemiesHitWhileInAttackState.Add(EnemyWeapon.transform.root.gameObject);
-
-        ResetCombo();
         return true;
     }
 
@@ -156,7 +168,7 @@ public abstract class WeaponMelee : HoldableItem, IBlockable
     //------------Actions----------------------------
     public void AttackPrimary()
     {
-        if ((comboCoolDownTimer <= comboMaxTime && currentComboAnimationAttackPrimary < 3 && currentComboAnimationAttackPrimary > 0|| ActionCoolDownTimer > ActionCoolDownAttackPrimary) && HolderStatController.Stamina > 20f * 1.2f)
+        if ((comboCoolDownTimer <= comboMaxTime && currentComboAnimationAttackPrimary < 3 && currentComboAnimationAttackPrimary > 0 || ActionCoolDownTimer > ActionCoolDownAttackPrimary) && HolderStatController.Stamina > 20f * 1.2f)
         {
             Debug.Log("Attacking primary!");
             HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", ++currentComboAnimationAttackPrimary);
@@ -169,6 +181,8 @@ public abstract class WeaponMelee : HoldableItem, IBlockable
     {
         if (ActionCoolDownTimer >= ActionCoolDownAttackSecondary && HolderStatController.Stamina > 20f * 0.8f && currentState == CurrentStateOfWeapon.None)
         {
+            Debug.Log(ActionCoolDownTimer);
+            ActionCoolDownTimer = 0;
             HoldersAnimator.SetTrigger("WeaponMeleeSecondaryAttack");
         }
     }
@@ -218,12 +232,12 @@ public abstract class WeaponMelee : HoldableItem, IBlockable
 
     public void AttackStateStartPrimary()
     {
-        HoldersSortingGroup.sortingOrder = 1;
+        HoldersSortingGroup.sortingOrder = 2;
         currentState = CurrentStateOfWeapon.AttackingPrimary;
         SoundEffects["WeaponMeleeSlashSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
         SoundEffects["WeaponMeleeSlashSound"].Play();
 
-        if(currentPlayingComboAnimationAttackPrimary < currentComboAnimationAttackPrimary)
+        if (currentPlayingComboAnimationAttackPrimary < currentComboAnimationAttackPrimary)
         {
             currentPlayingComboAnimationAttackPrimary++;
         }
@@ -234,7 +248,7 @@ public abstract class WeaponMelee : HoldableItem, IBlockable
 
     public void AttackStateStartSecondary()
     {
-        HoldersSortingGroup.sortingOrder = 1;
+        HoldersSortingGroup.sortingOrder = 2;
         currentState = CurrentStateOfWeapon.AttackingSecondary;
         SoundEffects["WeaponMeleeThrustSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
         SoundEffects["WeaponMeleeThrustSound"].Play();
@@ -247,13 +261,9 @@ public abstract class WeaponMelee : HoldableItem, IBlockable
         EnemiesHitWhileInAttackState.Clear();
         HoldersSortingGroup.sortingOrder = 0;
 
-        if(currentPlayingComboAnimationAttackPrimary == 3)
+        if (currentPlayingComboAnimationAttackPrimary == 3 || currentPlayingComboAnimationAttackPrimary == currentComboAnimationAttackPrimary)
         {
-            currentComboAnimationAttackPrimary = 0;
-            currentPlayingComboAnimationAttackPrimary = 0;
-
-            HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", currentComboAnimationAttackPrimary);
-            Debug.Log("Current playing combo animation is 3 resetting!");
+            ResetCombo();
         }
     }
 

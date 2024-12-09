@@ -19,8 +19,8 @@ public class TwoHandedFist : WeaponMelee
 
         //cooldowns
         ActionCoolDownBlock = 1.1f;
-        ActionCoolDownAttackPrimary = 1.25f;
-        ActionCoolDownAttackSecondary = 1.25f;
+        ActionCoolDownAttackPrimary = 1.3f;
+        ActionCoolDownAttackSecondary = 1.3f;
         comboMaxTime = 0.8f;
 
         //define weapon collider
@@ -80,6 +80,9 @@ public class TwoHandedFist : WeaponMelee
 
     public override bool WeaponsClashed(GameObject EnemyWeapon)
     {
+        Debug.Log("TwoHandedFist Weaponsclashed called!");
+        Debug.Log(EnemyWeapon.GetComponent<HoldableItem>());
+
         if(EnemyWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
         {
             HoldersAnimator.SetTrigger("Blocked");
