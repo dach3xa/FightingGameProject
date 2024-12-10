@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 
 public abstract class BaseCharacterController : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public abstract class BaseCharacterController : MonoBehaviour
         { Animator.StringToHash("PrimaryAttack"), "PrimaryAttack" },
         { Animator.StringToHash("PrimaryAttack2"), "PrimaryAttack2" },
         { Animator.StringToHash("SecondaryAttack"), "SecondaryAttack" },
+        { Animator.StringToHash("LegKick"), "LegKick" }
     };
 
     public Dictionary<string, AudioSource> SoundEffects;
@@ -23,6 +25,8 @@ public abstract class BaseCharacterController : MonoBehaviour
     [SerializeField] protected GameObject ItemHolder;
 
     [SerializeField] protected GameObject ItemHolderLeft;
+
+    [SerializeField] protected GameObject Leg;
 
     [SerializeField] protected GameObject AudioHolder;
     [SerializeField] public GameObject ItemInHand { get; protected set; }
@@ -149,12 +153,18 @@ public abstract class BaseCharacterController : MonoBehaviour
     }
     //--------------IsAttackingCheck -------------------------
 
-    public (string, HoldableItem, bool) IsAttackingCheck()
+    public (string, UsableObject, bool) IsAttackingCheck()
     {
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(CurrentAnimatorHoldingLayerRight);
-        if (ItemInHand && (AttackStateNames.ContainsKey(stateInfo.shortNameHash)))
+        AnimatorStateInfo stateInfoWeapon = animator.GetCurrentAnimatorStateInfo(CurrentAnimatorHoldingLayerRight);
+        AnimatorStateInfo stateInfoLegs = animator.GetCurrentAnimatorStateInfo(animator.GetLayerIndex("LegsLayer"));
+
+        if (ItemInHand && (AttackStateNames.ContainsKey(stateInfoWeapon.shortNameHash)))
         {
-            return (AttackStateNames[stateInfo.shortNameHash], ItemInHand.GetComponent<WeaponMelee>(), true);
+            return (AttackStateNames[stateInfoWeapon.shortNameHash], ItemInHand.GetComponent<WeaponMelee>(), true);
+        }
+        else if (AttackStateNames.ContainsKey(stateInfoLegs.shortNameHash))
+        {
+            return (AttackStateNames[stateInfoLegs.shortNameHash], Leg.GetComponent<Leg>(), true);
         }
         else
         {
@@ -168,62 +178,60 @@ public abstract class BaseCharacterController : MonoBehaviour
     //----weapon animation events----
     protected void WeaponAttackStartPrimary()
     {
-        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
-        currentWeapon.AttackStateStartPrimary();
+        IAttackablePrimary currentAttackingObject = (IsAttackingCheck().Item1 == "LegKick")? Leg.GetComponent<Leg>() : ItemInHand.GetComponent<WeaponMelee>();
+        currentAttackingObject.AttackStateStartPrimary();
     }
 
     protected void WeaponAttackStartSecondary()
     {
-        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
-        currentWeapon.AttackStateStartSecondary();
+        var currentAttackingObject = ItemInHand.GetComponent<WeaponMelee>();
+        currentAttackingObject.AttackStateStartSecondary();
     }
 
     protected void WeaponAttackEnd()
     {
-        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
-        currentWeapon.AttackStateEnd();
+        IAttackablePrimary currentAttackingObject = (ItemInHand && ItemInHand.GetComponent<WeaponMelee>().IsAttacking) ? ItemInHand.GetComponent<WeaponMelee>() : Leg.GetComponent<Leg>();
+        currentAttackingObject.AttackStateEnd();
     }
 
     protected void WeaponBlockStart()
     {
-        IBlockable currentWeapon = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
+        IBlockable currentWeapon = (ItemInHandLeft && ItemInHandLeft.GetComponent<UsableObject>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
         currentWeapon.BlockStateStart();
     }
     protected void WeaponBlockEnd()
     {
-        IBlockable currentWeapon = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
+        IBlockable currentWeapon = (ItemInHandLeft && ItemInHandLeft.GetComponent<UsableObject>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
         currentWeapon.BlockStateEnd();
     }
 
     protected void ReduceStaminaMeleeWeaponAttack()
     {
-        if(IsHolding && ItemInHand.CompareTag("Weapon"))
-        {
-            var Weapon = ItemInHand.GetComponent<WeaponMelee>();
+        IAttackablePrimary currentAttackingObject = (ItemInHand && ItemInHand.GetComponent<WeaponMelee>().IsAttacking) ? ItemInHand.GetComponent<WeaponMelee>() : Leg.GetComponent<Leg>();
 
-            float staminaReduceMultiplier = 0;
-            if (Weapon.currentState == CurrentStateOfWeapon.AttackingPrimary)
-                staminaReduceMultiplier = Weapon.PrimaryAttackMultiplier;
-            else if (Weapon.currentState == CurrentStateOfWeapon.AttackingSecondary)
-                staminaReduceMultiplier = Weapon.SecondaryAttackMultiplier;
+        float staminaReduceMultiplier = 0;
 
-            var staminaReduce = Weapon.BaseStaminaReduceValue * staminaReduceMultiplier;
+        if (currentAttackingObject.CurrentState == CurrentStateOfAction.AttackingPrimary)
+            staminaReduceMultiplier = currentAttackingObject.PrimaryAttackMultiplier;
+        else if (currentAttackingObject.CurrentState == CurrentStateOfAction.AttackingSecondary)
+            staminaReduceMultiplier = currentAttackingObject.PrimaryAttackMultiplier;//change in the future this part
 
-            characterStatController.ReduceStamina(staminaReduce);
-        }
+        var staminaReduce = currentAttackingObject.BaseStaminaReduceValue * staminaReduceMultiplier;
+
+        characterStatController.ReduceStamina(staminaReduce);
     }
     //----Item animation events----
     protected void SetItemInHandActive()
     {
         ItemInHand.GetComponent<SpriteRenderer>().enabled = true;
-        ItemInHand.GetComponent<HoldableItem>().enabled = true;
+        ItemInHand.GetComponent<UsableObject>().enabled = true;
         ItemInHand.GetComponent<BoxCollider2D>().enabled = true;    
     }
 
     protected void SetItemInHandLeftActive()
     {
         ItemInHandLeft.GetComponent<SpriteRenderer>().enabled = true;
-        ItemInHandLeft.GetComponent<HoldableItem>().enabled = true;
+        ItemInHandLeft.GetComponent<UsableObject>().enabled = true;
         ItemInHandLeft.GetComponent<BoxCollider2D>().enabled = true;
     }
     //----Movement animation events----
@@ -249,15 +257,15 @@ public abstract class BaseCharacterController : MonoBehaviour
     protected void TakeItem(string itemName)
     {
         var ItemToTake = Items.FirstOrDefault(item => item.name == itemName);
-        if (ItemToTake.GetComponent<HoldableItem>() is Shield)
+        if (ItemToTake.GetComponent<UsableObject>() is Shield)
         {
             TakeShield(ItemToTake);
         }
-        else if(ItemToTake.GetComponent<HoldableItem>().IsTwoHanded)
+        else if(ItemToTake.GetComponent<UsableObject>().IsTwoHanded)
         {
             TakeTwoHandedWeapon(ItemToTake);
         }
-        else if (!ItemToTake.GetComponent<HoldableItem>().IsTwoHanded)
+        else if (!ItemToTake.GetComponent<UsableObject>().IsTwoHanded)
         {
             TakeOneHandedWeapon(ItemToTake);
         }
@@ -265,7 +273,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void TakeShield(GameObject Shield)
     {
-        if (ItemInHand != null && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded)
+        if (ItemInHand != null && ItemInHand.GetComponent<UsableObject>().IsTwoHanded)
         {
             DisablePreviousItem(ItemInHand);
         }
@@ -321,7 +329,7 @@ public abstract class BaseCharacterController : MonoBehaviour
         if (itemInHand)
         {
 
-            itemInHand.GetComponent<HoldableItem>().enabled = false;
+            itemInHand.GetComponent<UsableObject>().enabled = false;
             itemInHand.GetComponent<SpriteRenderer>().enabled = false;
             itemInHand.GetComponent<BoxCollider2D>().enabled = false;
 
@@ -336,10 +344,89 @@ public abstract class BaseCharacterController : MonoBehaviour
             animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
         }
     }
+    //-----------------combat Actions------------------------
 
-    //-----------------Kick-----------------------------
+    protected void Attack(string PrimaryOrSecondary)
+    {
 
+        if (ItemInHandLeft && ItemInHandLeft.GetComponent<UsableObject>() is Shield && ItemInHandLeft.GetComponent<Shield>().CurrentState == CurrentStateOfAction.Blocking)
+        {
+            return;
+        }
 
+        if (!ItemInHand)
+        {
+            if (!ItemInHandLeft)
+            {
+                TakeItem("TwoHandedFist");
+            }
+
+            return;//one handed fist here
+        }
+
+        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
+
+        if (PrimaryOrSecondary == "Primary")
+        {
+            currentWeapon.AttackPrimary();
+        }
+        else if (PrimaryOrSecondary == "Secondary")
+        {
+            currentWeapon.AttackSecondary();
+        }
+    }
+
+    protected void StartBlocking()
+    {
+        if (IsAttackingCheck().Item2)
+        {
+            return;
+        }
+
+        if (!ItemInHand)
+        {
+            if (!ItemInHandLeft)
+            {
+                TakeItem("TwoHandedFist");
+            }
+        }
+
+        IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<UsableObject>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
+        currentItem.BlockStart();
+    }
+
+    protected void StopBlocking()
+    {
+        if (!IsHolding)
+        {
+            return;
+        }
+
+        IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<UsableObject>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
+        currentItem.BlockEnd();
+    }
+
+    protected void CancelAttack()
+    {
+        Debug.Log("Calling the cancel event!");
+        var currentWeapon = ItemInHand?.GetComponent<WeaponMelee>();
+
+        currentWeapon?.CancelAttack();
+    }
+
+    protected void Kick()
+    {
+        if (ItemInHand && ItemInHand.GetComponent<UsableObject>() is IAttackablePrimary)
+        {
+            if((ItemInHand.GetComponent<IAttackablePrimary>().ActionCoolDownTimer <= ItemInHand.GetComponent<IAttackablePrimary>().ActionCoolDownAttackPrimary))
+            {
+                return;
+            }
+        }
+
+        var LegScript = Leg.GetComponent<Leg>();
+        LegScript.AttackPrimary();
+    }
 
     //-----------------animation controller--------------------
 

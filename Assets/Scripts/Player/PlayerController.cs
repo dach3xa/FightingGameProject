@@ -104,6 +104,11 @@ public class PlayerController : BaseCharacterController
             CancelAttack();
         }
 
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            Kick();
+        }
+
         if (Input.GetKeyDown(KeyCode.G))
         {
             if (!IsHolding) return;
@@ -111,74 +116,6 @@ public class PlayerController : BaseCharacterController
             if (ItemInHand) DropItem(ItemInHand);
             else if (ItemInHandLeft) DropItem(ItemInHandLeft);
         }
-    }
-
-    private void Attack(string PrimaryOrSecondary)
-    {
-
-        if (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield && ItemInHandLeft.GetComponent<Shield>().currentState == CurrentStateOfWeapon.Blocking)
-        {
-            return;
-        }
-
-        if (!ItemInHand)
-        {
-            if (!ItemInHandLeft)
-            {
-                TakeItem("TwoHandedFist");
-            }
-
-            return;//one handed fist here
-        }
-
-        var currentWeapon = ItemInHand.GetComponent<WeaponMelee>();
-
-        if(PrimaryOrSecondary == "Primary")
-        {
-            currentWeapon.AttackPrimary();
-        }
-        else if(PrimaryOrSecondary == "Secondary")
-        {
-            currentWeapon.AttackSecondary();
-        }
-    }
-
-    private void StartBlocking()
-    {
-        if (IsAttackingCheck().Item2)
-        {
-            return;
-        }
-
-        if (!ItemInHand)
-        {
-            if (!ItemInHandLeft)
-            {
-                TakeItem("TwoHandedFist");
-            }
-        }
-
-        IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
-        currentItem.BlockStart();
-    }
-
-    private void StopBlocking()
-    {
-        if (!IsHolding)
-        {
-            return;
-        }
-
-        IBlockable currentItem = (ItemInHandLeft && ItemInHandLeft.GetComponent<HoldableItem>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
-        currentItem.BlockEnd();
-    }
-
-    private void CancelAttack()
-    {
-        Debug.Log("Calling the cancel event!");
-        var currentWeapon = ItemInHand?.GetComponent<WeaponMelee>();
-
-        currentWeapon?.CancelAttack();
     }
 
     //------------------------------rotating body parts according to mouse position
@@ -240,7 +177,7 @@ public class PlayerController : BaseCharacterController
                 BringDownToNormal(ArmRightPivot);
             }
 
-            if ((ItemInHand && ItemInHand.GetComponent<HoldableItem>().IsTwoHanded && ItemInHand.GetComponent<SpriteRenderer>().enabled) || (ItemInHandLeft && ItemInHandLeft.GetComponent<SpriteRenderer>().enabled))
+            if ((ItemInHand && ItemInHand.GetComponent<UsableObject>().IsTwoHanded && ItemInHand.GetComponent<SpriteRenderer>().enabled) || (ItemInHandLeft && ItemInHandLeft.GetComponent<SpriteRenderer>().enabled))
             {
                 ArmLeftPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmLeftPivot.transform.rotation.x, ArmLeftPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
             }

@@ -6,8 +6,8 @@ public class TwoHandedFist : WeaponMelee
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected float CoolDownStopsHolding = 4f;
 
-    [SerializeField] private GameObject ItemHolderLeftHand;
-    [SerializeField] private GameObject ItemHolderRightHand;
+    [SerializeField] private GameObject LeftFist;
+    [SerializeField] private GameObject RightFist;
     void Start()
     {
         base.Start();
@@ -24,9 +24,9 @@ public class TwoHandedFist : WeaponMelee
         comboMaxTime = 0.8f;
 
         //define weapon collider
-        WidthOfWeapon = 0.25f;
-        HeightOfWeapon = 0.5f;
-        WeaponOffsetAngle = 90f;
+        WidthOfCollider = 0.2f;
+        HeightOfCollider = 0.4f;
+        ColliderOffsetAngle = 90f;
     }
 
     private void OnEnable()
@@ -66,34 +66,35 @@ public class TwoHandedFist : WeaponMelee
     //---------Drawing collider------------
     override protected Collider2D DrawingCollider()
     {
-        float offsetAngle = WeaponOffsetAngle;
+        float offsetAngle = ColliderOffsetAngle;
         float angle = transform.eulerAngles.z + offsetAngle; // Add an offset angle
         Vector2 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-        RaycastHit2D EnemiesHitLeftHand = Physics2D.CircleCast(ItemHolderLeftHand.transform.position, WidthOfWeapon, direction, HeightOfWeapon, HolderController.EnemyLayer);
-        RaycastHit2D EnemiesHitRightHand = Physics2D.CircleCast(ItemHolderRightHand.transform.position, WidthOfWeapon, direction, HeightOfWeapon, HolderController.EnemyLayer);
+        RaycastHit2D EnemiesHitLeftHand = Physics2D.CircleCast(LeftFist.transform.position, WidthOfCollider, direction, HeightOfCollider, HolderController.EnemyLayer);
+        RaycastHit2D EnemiesHitRightHand = Physics2D.CircleCast(RightFist.transform.position, WidthOfCollider, direction, HeightOfCollider, HolderController.EnemyLayer);
 
-        if (EnemiesHitLeftHand) return EnemiesHitLeftHand.collider;
-        else return EnemiesHitRightHand.collider;
+        if (EnemiesHitLeftHand && (HolderController.IsAttackingCheck().Item1 == "SecondaryAttack" || HolderController.IsAttackingCheck().Item1 == "PrimaryAttack2")) return EnemiesHitLeftHand.collider;
+        else if (EnemiesHitRightHand && (HolderController.IsAttackingCheck().Item1 == "PrimaryAttack")) return EnemiesHitRightHand.collider;
+        else return null;
     }
 
     //---------Weapon Clashed-----------------
 
-    public override bool WeaponsClashed(GameObject EnemyWeapon)
+    public override bool AttacksClashed(GameObject EnemyWeapon)
     {
         Debug.Log("TwoHandedFist Weaponsclashed called!");
-        Debug.Log(EnemyWeapon.GetComponent<HoldableItem>());
+        Debug.Log(EnemyWeapon.GetComponent<UsableObject>());
 
-        if(EnemyWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
+        if(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist || EnemyWeapon.GetComponent<UsableObject>() is Leg)
         {
             HoldersAnimator.SetTrigger("Blocked");
             EnemiesHitWhileInAttackState.Add(EnemyWeapon);
-            ResetCombo();
+            ResetAttackPrimary();
             return true;
         }
         else
         {
             HoldersAnimator.SetTrigger("Blocked");
-            ResetCombo();
+            ResetAttackPrimary();
             return false;
         }
     }
@@ -102,7 +103,7 @@ public class TwoHandedFist : WeaponMelee
 
     public override bool BlockImpact(GameObject AttackingWeapon)
     {
-        if(AttackingWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
+        if(AttackingWeapon.GetComponent<UsableObject>() is TwoHandedFist)
         {
             HoldersAnimator.SetTrigger("Blocked");
             return true;

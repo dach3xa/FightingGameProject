@@ -19,9 +19,9 @@ public class OneHandedSword : WeaponMelee
         comboMaxTime = 0.6f;
 
         //define weapon collider
-        WidthOfWeapon = 0.25f;
-        HeightOfWeapon = 1.5f;
-        WeaponOffsetAngle = 90f;
+        WidthOfCollider = 0.25f;
+        HeightOfCollider = 1.5f;
+        ColliderOffsetAngle = 90f;
     }
 
     void Update()

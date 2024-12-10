@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class Shield : HoldableItem, IBlockable
+public class Shield : UsableObject, IBlockable
 {
-    [SerializeField] public CurrentStateOfWeapon currentState { get; set; }//change in future
+    [SerializeField] public CurrentStateOfAction CurrentState { get; set; }//change in future
     [SerializeField] private Sprite FrontSprite;
     [SerializeField] private Sprite BackSprite;
     //cooldown
-    protected float ActionCoolDownTimer = 0;
-    protected float ActionCoolDownBlock = 1f;
+    public float ActionCoolDownTimer { get; protected set; } = 0;
+    public float ActionCoolDownBlock { get; protected set; } = 1f;
     //stamina
     protected float StaminaReduceValueWhenBlocking = 20f;
     void Start()
@@ -27,7 +27,7 @@ public class Shield : HoldableItem, IBlockable
     }
     protected void ReduceStaminaWhenBlocking()
     {
-        if (currentState == CurrentStateOfWeapon.Blocking)
+        if (CurrentState == CurrentStateOfAction.Blocking)
         {
             if(!HolderStatController.ReduceStamina(StaminaReduceValueWhenBlocking * Time.deltaTime))
             {
@@ -39,12 +39,12 @@ public class Shield : HoldableItem, IBlockable
     public override void OnHolderDamaged()
     {
         ActionCoolDownTimer = 0.3f;
-        currentState = CurrentStateOfWeapon.None;
+        CurrentState = CurrentStateOfAction.None;
     }
 
     public void BlockStart()
     {
-        if (ActionCoolDownTimer >= ActionCoolDownBlock && HolderStatController.Stamina > 0 && currentState == CurrentStateOfWeapon.None)
+        if (ActionCoolDownTimer >= ActionCoolDownBlock && HolderStatController.Stamina > 0 && CurrentState == CurrentStateOfAction.None)
         {
             HoldersAnimator.SetBool("BlockingShield", true);
             ActionCoolDownTimer = -0.3f;
@@ -64,14 +64,14 @@ public class Shield : HoldableItem, IBlockable
     //--------------------animation events
     public void BlockStateStart()
     {
-        currentState = CurrentStateOfWeapon.Blocking;
+        CurrentState = CurrentStateOfAction.Blocking;
 
         GetComponent<SpriteRenderer>().sprite = FrontSprite;
         GetComponent<SpriteRenderer>().sortingOrder = 8;
     }
     public void BlockStateEnd()
     {
-        currentState = CurrentStateOfWeapon.None;
+        CurrentState = CurrentStateOfAction.None;
 
         GetComponent<SpriteRenderer>().sprite = BackSprite;
         GetComponent<SpriteRenderer>().sortingOrder = -1;

@@ -47,9 +47,9 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         {
             GameObject[] MeleeWeapons = Items.Where(Item => Item.GetComponent<WeaponMelee>() != null).ToArray();
             TakeItem(MeleeWeapons[UnityEngine.Random.Range(0, MeleeWeapons.Length)].name);
-            MaxDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfWeapon * (1/2);
-            MinDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfWeapon * (1/4);
-            DistenceToEnemyStartAttacking = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfWeapon;
+            MaxDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1/2);
+            MinDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1/4);
+            DistenceToEnemyStartAttacking = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider;
         }
         ChangeMovePositionEnemySaw();
     }

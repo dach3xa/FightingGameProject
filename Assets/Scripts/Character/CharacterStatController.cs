@@ -82,7 +82,7 @@ public class CharacterStatController : MonoBehaviour
     }
     //---------------------- current stat state controller
 
-    protected void CurrentStatStateController(CurrentStatState NewStatState, object AdditionalInfo = null)
+    protected void CurrentStatStateController(CurrentStatState NewStatState, GameObject AdditionalInfo = null)
     {
         switch (NewStatState) 
         {
@@ -100,30 +100,27 @@ public class CharacterStatController : MonoBehaviour
                 break;
         }
     }
-    protected void ChangeCurrentStatStateToDamaged(object AdditionalInfo)
+    protected void ChangeCurrentStatStateToDamaged(GameObject AdditionalInfo)
     {
         ResetAllAnimationParameters();
 
-        CharacterControllerScript.ItemInHand?.GetComponent<HoldableItem>().OnHolderDamaged();
-        CharacterControllerScript.ItemInHandLeft?.GetComponent<HoldableItem>().OnHolderDamaged();
+        CharacterControllerScript.ItemInHand?.GetComponent<UsableObject>().OnHolderDamaged();
+        CharacterControllerScript.ItemInHandLeft?.GetComponent<UsableObject>().OnHolderDamaged();
 
         CharacterControllerScript.enabled = false;
-        if(CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<HoldableItem>().enabled = false;
-        if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = false;
+        if(CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<UsableObject>().enabled = false;
+        if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<UsableObject>().enabled = false;
 
-        HandleDamagedAnimation((GameObject)AdditionalInfo);
+        HandleDamagedAnimation(AdditionalInfo);
         this.statState = CurrentStatState.Damaged;
     }
 
 
    protected void HandleDamagedAnimation(GameObject AttackerWeapon)
    {
-        HoldableItem attackerWeapon = AttackerWeapon.GetComponent<HoldableItem>();
+        UsableObject attackerWeapon = AttackerWeapon.GetComponent<UsableObject>();
 
-        if(attackerWeapon is WeaponMelee)
-        {
-            HandleDamagedAnimationWeaponMelee(AttackerWeapon);
-        }
+        HandleDamagedAnimationWeaponMelee(AttackerWeapon);
 
         animator.SetTrigger("Damaged");
    }
@@ -135,7 +132,7 @@ public class CharacterStatController : MonoBehaviour
         {
             if (attackerController.IsAttackingCheck().Item1 == "PrimaryAttack" || attackerController.IsAttackingCheck().Item1 == "SecondaryAttack")
             {
-                if (AttackerWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
+                if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
                 {
                     animator.Play("Damaged", 0, 0f);
                     return;
@@ -152,7 +149,7 @@ public class CharacterStatController : MonoBehaviour
         {
             if (attackerController.IsAttackingCheck().Item1 == "SecondaryAttack" || attackerController.IsAttackingCheck().Item1 == "PrimaryAttack2")
             {
-                if (AttackerWeapon.GetComponent<HoldableItem>() is TwoHandedFist)
+                if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
                 {
                     animator.Play("DamagedBottom", 0, 0f);
                     return;
@@ -180,10 +177,12 @@ public class CharacterStatController : MonoBehaviour
                     animator.SetInteger(parameter.name, 0);
                     break;
                 case AnimatorControllerParameterType.Bool:
+
                     if (parameter.name != "IsHolding")
                     {
                         animator.SetBool(parameter.name, false);
                     }
+
                     break;
             }
         }
@@ -192,8 +191,8 @@ public class CharacterStatController : MonoBehaviour
     protected void ChangeCurrentStatStateToNormal()
     {
         CharacterControllerScript.enabled = true;
-        if (CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<HoldableItem>().enabled = true;
-        if (CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<HoldableItem>().enabled = true;
+        if (CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<UsableObject>().enabled = true;
+        if (CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<UsableObject>().enabled = true;
 
         animator.ResetTrigger("Damaged");
         this.statState = CurrentStatState.normal;
@@ -287,10 +286,12 @@ public class CharacterStatController : MonoBehaviour
 
     public bool RecieveAttack(float damage, GameObject AttackerWeapon)
     {
+        Debug.Log("Recieved the attack from " + AttackerWeapon.name);
+
         WeaponMelee ItemInHand = CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>();
         Shield ItemInHandLeft = CharacterControllerScript.ItemInHandLeft?.GetComponent<Shield>();
-        bool IsAttackingOrBlockingRightHand = (ItemInHand && (ItemInHand.currentState == CurrentStateOfWeapon.Blocking || ItemInHand.currentState == CurrentStateOfWeapon.AttackingSecondary || ItemInHand.currentState == CurrentStateOfWeapon.AttackingPrimary));
-        bool IsBlockingLeftHand = ItemInHandLeft && (ItemInHandLeft.currentState == CurrentStateOfWeapon.Blocking);
+        bool IsAttackingOrBlockingRightHand = (ItemInHand && (ItemInHand.CurrentState == CurrentStateOfAction.Blocking || ItemInHand.CurrentState == CurrentStateOfAction.AttackingSecondary || ItemInHand.CurrentState == CurrentStateOfAction.AttackingPrimary));
+        bool IsBlockingLeftHand = ItemInHandLeft && (ItemInHandLeft.CurrentState == CurrentStateOfAction.Blocking);
 
         if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && Mathf.Sign(gameObject.transform.localScale.x) == Mathf.Sign(-AttackerWeapon.transform.lossyScale.x))
         {
@@ -308,7 +309,7 @@ public class CharacterStatController : MonoBehaviour
         }
         else
         {
-            Debug.Log("take damage not blocking or attacking!");
+            Debug.Log("Recieved damage from " + AttackerWeapon.name);
             TakeDamage(damage, AttackerWeapon);
             return true;
         }
@@ -327,7 +328,7 @@ public class CharacterStatController : MonoBehaviour
         else if (IsAttackingOrBlockingRightHand)
         {
             Debug.Log("Blocking or attacking right hand!");
-            if (ItemInHand.currentState == CurrentStateOfWeapon.Blocking)
+            if (ItemInHand.CurrentState == CurrentStateOfAction.Blocking)
             {
                 if (ItemInHand.BlockImpact(AttackerWeapon) == false)
                 {
@@ -336,7 +337,7 @@ public class CharacterStatController : MonoBehaviour
                     return true;
                 }
             }
-            else if (ItemInHand.WeaponsClashed(AttackerWeapon) == false)
+            else if (ItemInHand.AttacksClashed(AttackerWeapon) == false)
             {
                 Debug.Log("Weapons clashed take damage");
                 TakeDamage(damage, AttackerWeapon);
