@@ -160,15 +160,17 @@ public abstract class BaseCharacterController : MonoBehaviour
 
         if (ItemInHand && (AttackStateNames.ContainsKey(stateInfoWeapon.shortNameHash)))
         {
+            Debug.Log(AttackStateNames.ContainsKey(stateInfoWeapon.shortNameHash));
             return (AttackStateNames[stateInfoWeapon.shortNameHash], ItemInHand.GetComponent<WeaponMelee>(), true);
         }
         else if (AttackStateNames.ContainsKey(stateInfoLegs.shortNameHash))
         {
+            Debug.Log(AttackStateNames.ContainsKey(stateInfoLegs.shortNameHash));
             return (AttackStateNames[stateInfoLegs.shortNameHash], Leg.GetComponent<Leg>(), true);
         }
         else
         {
-            return ("not Attacking", null, false);
+            return ("not Attacking", ItemInHand?.GetComponent<UsableObject>(), false) ;
         }
         
     }
@@ -178,7 +180,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     //----weapon animation events----
     protected void WeaponAttackStartPrimary()
     {
-        IAttackablePrimary currentAttackingObject = (IsAttackingCheck().Item1 == "LegKick")? Leg.GetComponent<Leg>() : ItemInHand.GetComponent<WeaponMelee>();
+        IAttackablePrimary currentAttackingObject = (IAttackablePrimary)IsAttackingCheck().Item2;
         currentAttackingObject.AttackStateStartPrimary();
     }
 
@@ -190,24 +192,26 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void WeaponAttackEnd()
     {
-        IAttackablePrimary currentAttackingObject = (ItemInHand && ItemInHand.GetComponent<WeaponMelee>().IsAttacking) ? ItemInHand.GetComponent<WeaponMelee>() : Leg.GetComponent<Leg>();
+        IAttackablePrimary currentAttackingObject = (IAttackablePrimary)IsAttackingCheck().Item2;
         currentAttackingObject.AttackStateEnd();
     }
 
     protected void WeaponBlockStart()
     {
+        Debug.Log("block Start");
         IBlockable currentWeapon = (ItemInHandLeft && ItemInHandLeft.GetComponent<UsableObject>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
         currentWeapon.BlockStateStart();
     }
     protected void WeaponBlockEnd()
     {
+        Debug.Log("block End");
         IBlockable currentWeapon = (ItemInHandLeft && ItemInHandLeft.GetComponent<UsableObject>() is Shield) ? ItemInHandLeft.GetComponent<Shield>() : ItemInHand.GetComponent<WeaponMelee>();
         currentWeapon.BlockStateEnd();
     }
 
     protected void ReduceStaminaMeleeWeaponAttack()
     {
-        IAttackablePrimary currentAttackingObject = (ItemInHand && ItemInHand.GetComponent<WeaponMelee>().IsAttacking) ? ItemInHand.GetComponent<WeaponMelee>() : Leg.GetComponent<Leg>();
+        IAttackablePrimary currentAttackingObject = (IAttackablePrimary)IsAttackingCheck().Item2;
 
         float staminaReduceMultiplier = 0;
 
@@ -254,7 +258,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     }
 
     //---------------------Taking Item------------------------------
-    protected void TakeItem(string itemName)
+    protected virtual void TakeItem(string itemName)
     {
         var ItemToTake = Items.FirstOrDefault(item => item.name == itemName);
         if (ItemToTake.GetComponent<UsableObject>() is Shield)
@@ -378,7 +382,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void StartBlocking()
     {
-        if (IsAttackingCheck().Item2)
+        if (IsAttackingCheck().Item3)
         {
             return;
         }
@@ -416,6 +420,11 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void Kick()
     {
+        if (ItemInHandLeft && ItemInHandLeft.GetComponent<UsableObject>() is Shield && ItemInHandLeft.GetComponent<Shield>().CurrentState == CurrentStateOfAction.Blocking)
+        {
+            return;
+        }
+
         if (ItemInHand && ItemInHand.GetComponent<UsableObject>() is IAttackablePrimary)
         {
             if((ItemInHand.GetComponent<IAttackablePrimary>().ActionCoolDownTimer <= ItemInHand.GetComponent<IAttackablePrimary>().ActionCoolDownAttackPrimary))

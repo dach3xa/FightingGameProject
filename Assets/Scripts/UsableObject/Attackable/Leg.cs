@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class Leg : PrimaryAttackable
 {
-
     void Start()
     {
         base.Start();

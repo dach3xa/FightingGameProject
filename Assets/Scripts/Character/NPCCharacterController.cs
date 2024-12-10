@@ -93,6 +93,7 @@ public abstract class NPCCharacterController : BaseCharacterController
             Debug.Log(AngleToEnemy);
             if(hit) Debug.Log(hit.collider.gameObject);
             Debug.Log(Enemy.gameObject);
+
             if (Mathf.Abs(AngleToEnemy) <= FOV && hit && hit.collider.gameObject == Enemy.gameObject)
             {
                 Debug.Log("Saw in FOV!");
@@ -221,7 +222,7 @@ public abstract class NPCCharacterController : BaseCharacterController
     protected abstract IEnumerator BehaviourControllerCombat();
     protected abstract void CombatBehaviour(ref float AttackCoolDownTimer);
     protected abstract void ChangeMovePositionCombat();
-    protected abstract void AttackPattern(ref float AttackCoolDownTimer);
+    protected abstract void ActionPattern(ref float AttackCoolDownTimer);
 
     //---------------------Movement--------------------------
 

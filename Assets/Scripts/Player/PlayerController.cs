@@ -83,6 +83,7 @@ public class PlayerController : BaseCharacterController
         {
             Attack("Primary");
         }
+
         if (Input.GetMouseButtonDown(1))
         {
             StartBlocking();

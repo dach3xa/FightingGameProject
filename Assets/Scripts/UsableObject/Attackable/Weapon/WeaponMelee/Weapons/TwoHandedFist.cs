@@ -24,14 +24,16 @@ public class TwoHandedFist : WeaponMelee
         comboMaxTime = 0.8f;
 
         //define weapon collider
-        WidthOfCollider = 0.2f;
-        HeightOfCollider = 0.4f;
+        WidthOfCollider = 0.3f;
+        HeightOfCollider = 0.5f;
         ColliderOffsetAngle = 90f;
+
+        ActionCoolDownTimer = 2f;
     }
 
     private void OnEnable()
     {
-        ActionCoolDownTimer = 1.3f;
+        ActionCoolDownTimer = 2f;
     }
 
     void Update()
@@ -84,7 +86,7 @@ public class TwoHandedFist : WeaponMelee
         Debug.Log("TwoHandedFist Weaponsclashed called!");
         Debug.Log(EnemyWeapon.GetComponent<UsableObject>());
 
-        if(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist || EnemyWeapon.GetComponent<UsableObject>() is Leg)
+        if(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist)
         {
             HoldersAnimator.SetTrigger("Blocked");
             EnemiesHitWhileInAttackState.Add(EnemyWeapon);
@@ -103,7 +105,7 @@ public class TwoHandedFist : WeaponMelee
 
     public override bool BlockImpact(GameObject AttackingWeapon)
     {
-        if(AttackingWeapon.GetComponent<UsableObject>() is TwoHandedFist)
+        if(AttackingWeapon.GetComponent<UsableObject>() is TwoHandedFist || AttackingWeapon.GetComponent<UsableObject>() is Leg)
         {
             HoldersAnimator.SetTrigger("Blocked");
             return true;

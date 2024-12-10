@@ -115,52 +115,55 @@ public class CharacterStatController : MonoBehaviour
         this.statState = CurrentStatState.Damaged;
     }
 
-
+    //-------handle damage animation-------------------------------------
    protected void HandleDamagedAnimation(GameObject AttackerWeapon)
    {
-        UsableObject attackerWeapon = AttackerWeapon.GetComponent<UsableObject>();
-
-        HandleDamagedAnimationWeaponMelee(AttackerWeapon);
+        BaseCharacterController attackerController = AttackerWeapon.transform.root.GetComponent<BaseCharacterController>();
+        if (Mathf.Sign(gameObject.transform.localScale.x) == Mathf.Sign(-AttackerWeapon.transform.lossyScale.x))
+        {
+            HandleDamageAnimationFront(attackerController, AttackerWeapon);
+        }
+        else
+        {
+            HandleDamageAnimationBack(attackerController, AttackerWeapon);
+        }
 
         animator.SetTrigger("Damaged");
    }
 
-    protected void HandleDamagedAnimationWeaponMelee(GameObject AttackerWeapon)
+    protected void HandleDamageAnimationFront(BaseCharacterController attackerController, GameObject AttackerWeapon)
     {
-        BaseCharacterController attackerController = AttackerWeapon.transform.root.GetComponent<BaseCharacterController>();
-        if (Mathf.Sign(gameObject.transform.localScale.x) == Mathf.Sign(-AttackerWeapon.transform.lossyScale.x))
+        if (attackerController.IsAttackingCheck().Item1 == "PrimaryAttack" || attackerController.IsAttackingCheck().Item1 == "SecondaryAttack" || attackerController.IsAttackingCheck().Item1 == "LegKick")
         {
-            if (attackerController.IsAttackingCheck().Item1 == "PrimaryAttack" || attackerController.IsAttackingCheck().Item1 == "SecondaryAttack")
-            {
-                if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
-                {
-                    animator.Play("Damaged", 0, 0f);
-                    return;
-                }
-
-                animator.Play("DamagedBottom", 0, 0f);
-            }
-            else
+            if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
             {
                 animator.Play("Damaged", 0, 0f);
+                return;
             }
+
+            animator.Play("DamagedBottom", 0, 0f);
         }
         else
         {
-            if (attackerController.IsAttackingCheck().Item1 == "SecondaryAttack" || attackerController.IsAttackingCheck().Item1 == "PrimaryAttack2")
-            {
-                if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
-                {
-                    animator.Play("DamagedBottom", 0, 0f);
-                    return;
-                }
+            animator.Play("Damaged", 0, 0f);
+        }
+    }
 
-                animator.Play("Damaged", 0, 0f);
-            }
-            else
+    protected void HandleDamageAnimationBack(BaseCharacterController attackerController, GameObject AttackerWeapon)
+    {
+        if (attackerController.IsAttackingCheck().Item1 == "SecondaryAttack" || attackerController.IsAttackingCheck().Item1 == "PrimaryAttack2" || attackerController.IsAttackingCheck().Item1 == "LegKick")
+        {
+            if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
             {
                 animator.Play("DamagedBottom", 0, 0f);
+                return;
             }
+
+            animator.Play("Damaged", 0, 0f);
+        }
+        else
+        {
+            animator.Play("DamagedBottom", 0, 0f);
         }
     }
 

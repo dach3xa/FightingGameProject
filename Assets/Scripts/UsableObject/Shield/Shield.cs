@@ -53,7 +53,15 @@ public class Shield : UsableObject, IBlockable
     public bool BlockImpact(GameObject AttackingWeapon)
     {
         HoldersAnimator.SetTrigger("Blocked");
-        return true;
+        if (AttackingWeapon.GetComponent<UsableObject>() is Leg)
+        {
+            BlockEnd();
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     public void BlockEnd()

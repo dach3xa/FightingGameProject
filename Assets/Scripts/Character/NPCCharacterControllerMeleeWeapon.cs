@@ -30,7 +30,17 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
             StateManager(CurrentEnemyState.SawEnemy);
         }
     }
+    //---------taking an item--------------------
 
+    protected override void TakeItem(string ItemName)
+    {
+        base.TakeItem(ItemName);
+
+        MaxDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1 / 2);
+        MinDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1 / 4);
+        DistenceToEnemyStartAttacking = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * 3/2;
+        Debug.Log(DistenceToEnemyStartAttacking);
+    }
 
     //-------- Enemy Saw State Behvaiour -----
     protected override IEnumerator BehaviourControllerSawEnemy()
@@ -47,12 +57,10 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         {
             GameObject[] MeleeWeapons = Items.Where(Item => Item.GetComponent<WeaponMelee>() != null).ToArray();
             TakeItem(MeleeWeapons[UnityEngine.Random.Range(0, MeleeWeapons.Length)].name);
-            MaxDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1/2);
-            MinDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1/4);
-            DistenceToEnemyStartAttacking = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider;
         }
         ChangeMovePositionEnemySaw();
     }
+
     protected override void ChangeMovePositionEnemySaw()
     {
         MovePosition = new Vector2(EnemyFocused.transform.position.x, EnemyFocused.transform.position.y + 0.6f);
@@ -76,7 +84,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         {
             ChangeMovePositionCombat();
 
-            AttackPattern(ref AttackCoolDownTimer);
+            ActionPattern(ref AttackCoolDownTimer);
         }
     }
     protected override void ChangeMovePositionCombat()
@@ -95,49 +103,64 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         }
     }
 
-    protected override void AttackPattern(ref float AttackCoolDownTimer)
+    protected override void ActionPattern(ref float AttackCoolDownTimer)
     {
         var currentWeapon = ItemInHand?.GetComponent<WeaponMelee>();
         var EnemyController = EnemyFocused.GetComponent<BaseCharacterController>();
 
-        float AttackCoolDown = UnityEngine.Random.Range(AttackCoolDownRangeMin, AttackCoolDownRangeMax);
-        var EnemyWeapon = EnemyFocused.GetComponent<BaseCharacterController>().ItemInHand?.GetComponent<WeaponMelee>();
+        var EnemyWeapon = EnemyController.ItemInHand?.GetComponent<WeaponMelee>();
+        var EnemyShield = EnemyController.ItemInHandLeft?.GetComponent<Shield>();
 
+        BlockPattern(EnemyWeapon, EnemyController);
+
+        AttackPattern(EnemyShield, currentWeapon, ref AttackCoolDownTimer);
+    }
+
+    protected void BlockPattern(WeaponMelee EnemyWeapon, BaseCharacterController EnemyController)
+    {
         if (EnemyWeapon != null)
         {
-            if (DistenceToEnemy < DistenceToEnemyStartBlocking && characterStatController.Stamina > 0 && EnemyController.IsAttackingCheck().Item2 )
+            if (DistenceToEnemy < DistenceToEnemyStartBlocking && characterStatController.Stamina > 0 && EnemyController.IsAttackingCheck().Item3)
             {
-                block(currentWeapon);
+                float RandomFloat = UnityEngine.Random.Range(0, 1.0f);
+
+                if (BlockChance >= RandomFloat)
+                {
+                    StartBlocking();
+                }
             }
         }
+    }
 
+    private void AttackPattern( Shield EnemyShield, WeaponMelee currentWeapon, ref float AttackCoolDownTimer)
+    {
+        float AttackCoolDown = UnityEngine.Random.Range(AttackCoolDownRangeMin, AttackCoolDownRangeMax);
         float AttackTypeChance = UnityEngine.Random.Range(0, 1f);
+
         if (DistenceToEnemy < DistenceToEnemyStartAttacking)
         {
-            if (characterStatController.Stamina > 60f && AttackCoolDownTimer > AttackCoolDown && (AttackTypeChance > 0.3f || currentWeapon.currentComboAnimationAttackPrimary > 0))
+
+            if ((EnemyShield && EnemyShield.CurrentState == CurrentStateOfAction.Blocking))
             {
-                currentWeapon.AttackPrimary();
+                Kick();
+                AttackCoolDownTimer = 0.5f;
+            }
+            else if (currentWeapon && characterStatController.Stamina > 60f && AttackCoolDownTimer > AttackCoolDown && (AttackTypeChance > 0.3f || currentWeapon.currentComboAnimationAttackPrimary > 0))
+            {
+
+                Attack("Primary");
                 if (currentWeapon.currentComboAnimationAttackPrimary >= 3)
                 {
                     AttackCoolDownTimer = 0;
                 }
             }
-            else if (characterStatController.Stamina > 30f && AttackCoolDownTimer > AttackCoolDown && AttackTypeChance <= 0.3f)
+            else if (currentWeapon && characterStatController.Stamina > 30f && AttackCoolDownTimer > AttackCoolDown && AttackTypeChance <= 0.3f)
             {
-                currentWeapon.AttackSecondary();
+
+                Attack("Secondary");
                 AttackCoolDownTimer = 0;
             }
 
-        }
-    }
-
-    private void block(WeaponMelee currentWeapon)
-    {
-        float RandomFloat = UnityEngine.Random.Range(0, 1.0f);
-
-        if (BlockChance >= RandomFloat)
-        {
-            currentWeapon?.BlockStart();
         }
     }
 }
