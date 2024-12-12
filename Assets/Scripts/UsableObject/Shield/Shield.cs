@@ -1,10 +1,12 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Shield : UsableObject, IBlockable
 {
     [SerializeField] public CurrentStateOfAction CurrentState { get; set; }//change in future
     [SerializeField] private Sprite FrontSprite;
     [SerializeField] private Sprite BackSprite;
+
     //cooldown
     public float ActionCoolDownTimer { get; protected set; } = 0;
     public float ActionCoolDownBlock { get; protected set; } = 1f;

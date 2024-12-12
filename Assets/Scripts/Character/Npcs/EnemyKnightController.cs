@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 public class EnemyKnightController : NPCCharacterControllerMeleeWeapon
 {
-    override protected float CombatStateStartDistence { get; set; } = 3f;
-    override protected float AttackCoolDownRangeMin { get; set; } = 1f;
-    override protected float AttackCoolDownRangeMax { get; set; } = 1f;
-    override protected float DistenceToEnemyStartBlocking { get; set; } = 3.5f;
-    override protected float BlockChance { get; set; } = 0.7f;
+    [SerializeField]override protected float CombatStateStartDistence { get; set; } = 3f;
+    [SerializeField] override protected float AttackCoolDownRangeMin { get; set; } = 0.8f;
+    [SerializeField] override protected float AttackCoolDownRangeMax { get; set; } = 1.3f;
+    [SerializeField] override protected float DistenceToEnemyStartBlocking { get; set; } = 3.5f;
+    [SerializeField] override protected float BlockChance { get; set; } = 0.7f;
     void Start()
     {
         base.Start();

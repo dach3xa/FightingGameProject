@@ -37,8 +37,10 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         base.TakeItem(ItemName);
 
         MaxDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1 / 2);
-        MinDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1 / 4);
-        DistenceToEnemyStartAttacking = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * 3/2;
+        MinDistenceToEnemyStop = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * (1 / 3);
+
+        float WeaponDistence = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * 2;
+        DistenceToEnemyStartAttacking = (WeaponDistence > 1.5f) ? (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider : 1.5f;
         Debug.Log(DistenceToEnemyStartAttacking);
     }
 
@@ -120,7 +122,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
     {
         if (EnemyWeapon != null)
         {
-            if (DistenceToEnemy < DistenceToEnemyStartBlocking && characterStatController.Stamina > 0 && EnemyController.IsAttackingCheck().Item3)
+            if (DistenceToEnemy < DistenceToEnemyStartBlocking && characterStatController.Stamina > 0 && EnemyWeapon.PlayingAttackAnimationCheck.Item2)
             {
                 float RandomFloat = UnityEngine.Random.Range(0, 1.0f);
 
@@ -143,7 +145,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
             if ((EnemyShield && EnemyShield.CurrentState == CurrentStateOfAction.Blocking))
             {
                 Kick();
-                AttackCoolDownTimer = 0.5f;
+                AttackCoolDownTimer = 1f;
             }
             else if (currentWeapon && characterStatController.Stamina > 60f && AttackCoolDownTimer > AttackCoolDown && (AttackTypeChance > 0.3f || currentWeapon.currentComboAnimationAttackPrimary > 0))
             {

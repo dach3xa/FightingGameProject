@@ -133,7 +133,9 @@ public class CharacterStatController : MonoBehaviour
 
     protected void HandleDamageAnimationFront(BaseCharacterController attackerController, GameObject AttackerWeapon)
     {
-        if (attackerController.IsAttackingCheck().Item1 == "PrimaryAttack" || attackerController.IsAttackingCheck().Item1 == "SecondaryAttack" || attackerController.IsAttackingCheck().Item1 == "LegKick")
+        var currentAttackingAnimation = AttackerWeapon.GetComponent<UsableObject>().PlayingAttackAnimationCheck.Item1;
+
+        if (currentAttackingAnimation == "PrimaryAttack" || currentAttackingAnimation == "SecondaryAttack" || currentAttackingAnimation == "LegKick")
         {
             if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
             {
@@ -151,7 +153,9 @@ public class CharacterStatController : MonoBehaviour
 
     protected void HandleDamageAnimationBack(BaseCharacterController attackerController, GameObject AttackerWeapon)
     {
-        if (attackerController.IsAttackingCheck().Item1 == "SecondaryAttack" || attackerController.IsAttackingCheck().Item1 == "PrimaryAttack2" || attackerController.IsAttackingCheck().Item1 == "LegKick")
+        var currentAttackingAnimation = AttackerWeapon.GetComponent<UsableObject>().PlayingAttackAnimationCheck.Item1;
+
+        if (currentAttackingAnimation == "SecondaryAttack" || currentAttackingAnimation == "PrimaryAttack2" || currentAttackingAnimation == "LegKick")
         {
             if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
             {
@@ -186,6 +190,9 @@ public class CharacterStatController : MonoBehaviour
                         animator.SetBool(parameter.name, false);
                     }
 
+                    break;
+                case AnimatorControllerParameterType.Trigger:
+                    animator.ResetTrigger(parameter.name);
                     break;
             }
         }

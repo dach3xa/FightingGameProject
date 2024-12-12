@@ -1549,21 +1549,21 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.31666666
-    functionName: WeaponAttackStartPrimary
+    functionName: LegAttackStart
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.35
-    functionName: ReduceStaminaMeleeWeaponAttack
+    functionName: ReduceStaminaLegAttack
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.46666667
-    functionName: WeaponAttackEnd
+    functionName: LegAttackEnd
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

@@ -3,9 +3,16 @@ using UnityEngine;
 
 public class Leg : PrimaryAttackable
 {
+    protected override Dictionary<int, string> AnimationStateNamesAttack { get; set; } = new Dictionary<int, string>
+    {
+        { Animator.StringToHash("LegKick"), "LegKick" },
+    };
+
     void Start()
     {
         base.Start();
+
+        ActionCoolDownAttackPrimary = 2f;
     }
 
     void Update()
@@ -22,7 +29,7 @@ public class Leg : PrimaryAttackable
 
     public override bool AttacksClashed(GameObject EnemyWeapon)
     {
-        if (EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist || EnemyWeapon.GetComponent<UsableObject>() is Leg)
+        if (EnemyWeapon.GetComponent<UsableObject>() is Leg)
         {
             EnemiesHitWhileInAttackState.Add(EnemyWeapon.transform.root.gameObject);
             HoldersAnimator.SetTrigger("Blocked");
@@ -41,6 +48,9 @@ public class Leg : PrimaryAttackable
     {
         if (ActionCoolDownTimer > ActionCoolDownAttackPrimary && HolderStatController.Stamina > 20f * 1.2f)
         {
+            Debug.Log("Kick!");
+            Debug.Log(ActionCoolDownTimer + " : " + ActionCoolDownAttackPrimary);
+
             HoldersAnimator.SetBool("Kick", true);
             ActionCoolDownTimer = 0;
         }

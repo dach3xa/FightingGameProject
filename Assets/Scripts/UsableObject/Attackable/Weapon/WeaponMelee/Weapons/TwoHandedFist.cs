@@ -49,7 +49,7 @@ public class TwoHandedFist : WeaponMelee
     {
         if (ActionCoolDownTimer > CoolDownStopsHolding)
         {
-            HoldersAnimator.Play("HoldingEnd", HolderController.CurrentAnimatorHoldingLayerRight, 0f);
+            HoldersAnimator.Play("HoldingEnd", AnimationLayer, 0f);
 
             ActionCoolDownTimer = 0f;
 
@@ -74,8 +74,8 @@ public class TwoHandedFist : WeaponMelee
         RaycastHit2D EnemiesHitLeftHand = Physics2D.CircleCast(LeftFist.transform.position, WidthOfCollider, direction, HeightOfCollider, HolderController.EnemyLayer);
         RaycastHit2D EnemiesHitRightHand = Physics2D.CircleCast(RightFist.transform.position, WidthOfCollider, direction, HeightOfCollider, HolderController.EnemyLayer);
 
-        if (EnemiesHitLeftHand && (HolderController.IsAttackingCheck().Item1 == "SecondaryAttack" || HolderController.IsAttackingCheck().Item1 == "PrimaryAttack2")) return EnemiesHitLeftHand.collider;
-        else if (EnemiesHitRightHand && (HolderController.IsAttackingCheck().Item1 == "PrimaryAttack")) return EnemiesHitRightHand.collider;
+        if (EnemiesHitLeftHand && (PlayingAttackAnimationCheck.Item1 == "SecondaryAttack" || PlayingAttackAnimationCheck.Item1 == "PrimaryAttack2")) return EnemiesHitLeftHand.collider;
+        else if (EnemiesHitRightHand && (PlayingAttackAnimationCheck.Item1 == "PrimaryAttack")) return EnemiesHitRightHand.collider;
         else return null;
     }
 

@@ -12,6 +12,13 @@ public enum CurrentStateOfAction
 }
 public abstract class WeaponMelee : PrimaryAttackable, IBlockable
 {
+    //animation info
+    protected override Dictionary<int, string> AnimationStateNamesAttack { get; set; } = new Dictionary<int, string>
+    {
+        { Animator.StringToHash("PrimaryAttack"), "PrimaryAttack" },
+        { Animator.StringToHash("PrimaryAttack2"), "PrimaryAttack2" },
+        { Animator.StringToHash("SecondaryAttack"), "SecondaryAttack" },
+    };
     //Weapon info
     public virtual float SecondaryAttackMultiplier { get; protected set; } = 0.8f;
 
@@ -116,7 +123,6 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
     }
     protected void ResetComboCheck()
     {
-        AnimatorStateInfo stateInfo = HoldersAnimator.GetCurrentAnimatorStateInfo(HolderController.CurrentAnimatorHoldingLayerRight);
         if ((currentComboAnimationAttackPrimary > 0 && comboCoolDownTimer >= comboMaxTime))
         {
             Debug.Log("Resetting combo!");
@@ -158,8 +164,7 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
     public void CancelAttack()
     {
         Debug.Log("Trying to Cancel the event!");
-        AnimatorStateInfo HolderAnimatorStateInfo = HoldersAnimator.GetCurrentAnimatorStateInfo(HolderController.CurrentAnimatorHoldingLayerRight);
-        if (CurrentState == CurrentStateOfAction.None && currentComboAnimationAttackPrimary < 2 && (HolderAnimatorStateInfo.IsName("PrimaryAttack") || HolderAnimatorStateInfo.IsName("SecondaryAttack")))
+        if (CurrentState == CurrentStateOfAction.None && currentComboAnimationAttackPrimary < 2 && PlayingAttackAnimationCheck.Item2)
         {
             HoldersAnimator.SetBool("StopAttack", true);
             StartCoroutine(ResetBool("StopAttack"));
