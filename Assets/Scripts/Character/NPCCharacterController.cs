@@ -232,7 +232,7 @@ public abstract class NPCCharacterController : BaseCharacterController
 
         float Speed = GetSpeedValue();
 
-        Move(Speed);
+        if(!StopMoving) Move(Speed);
     }
 
     protected void CheckIfAtTheDestination()
@@ -266,7 +266,7 @@ public abstract class NPCCharacterController : BaseCharacterController
         }
     }
 
-    protected void Move(float SpeedValue)
+    protected override void Move(float SpeedValue)
     {
         if (Grounded)
         {

@@ -39,6 +39,7 @@ public class CharacterStatController : MonoBehaviour
     protected void Start()
     {
         CharacterControllerScript = GetComponent<BaseCharacterController>();
+
         animator = GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody2D>();
         collider = GetComponent<BoxCollider2D>();

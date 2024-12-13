@@ -71,6 +71,8 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
         ActionCoolDownBlock = 1.1f;
         ActionCoolDownAttackPrimary = 1.3f;
         ActionCoolDownAttackSecondary = 1.3f;
+
+        //AnimationLayer = HoldersAnimator.GetLayerIndex(gameObject.name);
     }
 
     protected override void UpdateTimers()
@@ -111,8 +113,7 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
         }
         else
         {
-            float damage = (CurrentState == CurrentStateOfAction.AttackingPrimary) ? BaseAttackValue * PrimaryAttackMultiplier : BaseAttackValue * SecondaryAttackMultiplier;
-            if (EnemyWeapon.transform.root.gameObject.GetComponent<CharacterStatController>().RecieveAttack(damage, gameObject))
+            if (EnemyWeapon.transform.root.gameObject.GetComponent<CharacterStatController>().RecieveAttack(Damage, gameObject))
             {
                 SoundEffects["WeaponMeleeDamageSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
                 SoundEffects["WeaponMeleeDamageSound"].Play();
@@ -142,9 +143,10 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
     //------------Actions----------------------------
     public override void AttackPrimary()
     {
+        Debug.Log(ActionCoolDownTimer);
         if ((comboCoolDownTimer <= comboMaxTime && currentComboAnimationAttackPrimary < 3 && currentComboAnimationAttackPrimary > 0 || ActionCoolDownTimer > ActionCoolDownAttackPrimary) && HolderStatController.Stamina > 20f * 1.2f)
         {
-            Debug.Log("Attacking primary!");
+            Debug.Log("Attacking primary inside!");
             HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", ++currentComboAnimationAttackPrimary);
             ActionCoolDownTimer = 0;
             comboCoolDownTimer = 0;
@@ -192,7 +194,8 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
 
     public virtual bool BlockImpact(GameObject AttackingWeapon)
     {
-        HoldersAnimator.SetTrigger("Blocked");
+        Debug.Log($"block impact! {gameObject.name}");
+        HoldersAnimator.Play("BlockImpact", AnimationLayer);
         return true;
     }
 

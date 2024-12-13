@@ -1,18 +1,14 @@
 using System.Collections;
 using UnityEngine;
-
-public class TwoHandedFist : WeaponMelee
+public class Fist : WeaponMelee
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected float CoolDownStopsHolding = 4f;
-
-    [SerializeField] private GameObject LeftFist;
-    [SerializeField] private GameObject RightFist;
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        CurrentItemType = ItemType.OneHandedFist;
         base.Start();
-        IsTwoHanded = true;
-
+        IsTwoHanded = false;
         //attack and stamina
         BaseAttackValue = 8f;
         BaseStaminaReduceValue = 12f;
@@ -30,14 +26,15 @@ public class TwoHandedFist : WeaponMelee
 
         ActionCoolDownTimer = 2f;
     }
-
     private void OnEnable()
     {
         ActionCoolDownTimer = 2f;
     }
-
+    // Update is called once per frame
     void Update()
     {
+        Debug.Log(ActionCoolDownTimer);
+
         UpdateTimers();
         ResetComboCheck();
         CollisionWithWeaponInAttackStateCheck();
@@ -45,7 +42,7 @@ public class TwoHandedFist : WeaponMelee
         StopHoldingCheck();
     }
 
-    private void StopHoldingCheck()
+    protected void StopHoldingCheck()
     {
         if (ActionCoolDownTimer > CoolDownStopsHolding)
         {
@@ -60,33 +57,20 @@ public class TwoHandedFist : WeaponMelee
     IEnumerator DisableFistsCoroutine()
     {
         yield return new WaitForSeconds(0.45f);
-        if(ActionCoolDownTimer > 0.43f)
+        if (ActionCoolDownTimer > 0.43f)
         {
             HolderController.DisablePreviousItem(gameObject);
-        }
-    }
-    //---------Drawing collider------------
-    override protected Collider2D DrawingCollider()
-    {
-        float offsetAngle = ColliderOffsetAngle;
-        float angle = transform.eulerAngles.z + offsetAngle; // Add an offset angle
-        Vector2 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-        RaycastHit2D EnemiesHitLeftHand = Physics2D.CircleCast(LeftFist.transform.position, WidthOfCollider, direction, HeightOfCollider, HolderController.EnemyLayer);
-        RaycastHit2D EnemiesHitRightHand = Physics2D.CircleCast(RightFist.transform.position, WidthOfCollider, direction, HeightOfCollider, HolderController.EnemyLayer);
 
-        if (EnemiesHitLeftHand && (PlayingAttackAnimationCheck.Item1 == "SecondaryAttack" || PlayingAttackAnimationCheck.Item1 == "PrimaryAttack2")) return EnemiesHitLeftHand.collider;
-        else if (EnemiesHitRightHand && (PlayingAttackAnimationCheck.Item1 == "PrimaryAttack")) return EnemiesHitRightHand.collider;
-        else return null;
+        }
     }
 
     //---------Weapon Clashed-----------------
-
     public override bool AttacksClashed(GameObject EnemyWeapon)
     {
         Debug.Log("TwoHandedFist Weaponsclashed called!");
         Debug.Log(EnemyWeapon.GetComponent<UsableObject>());
 
-        if(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist)
+        if (EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist)
         {
             HoldersAnimator.SetTrigger("Blocked");
             EnemiesHitWhileInAttackState.Add(EnemyWeapon);
@@ -105,9 +89,9 @@ public class TwoHandedFist : WeaponMelee
 
     public override bool BlockImpact(GameObject AttackingWeapon)
     {
-        if(AttackingWeapon.GetComponent<UsableObject>() is TwoHandedFist || AttackingWeapon.GetComponent<UsableObject>() is Leg)
+        if (AttackingWeapon.GetComponent<UsableObject>() is TwoHandedFist || AttackingWeapon.GetComponent<UsableObject>() is Leg)
         {
-            HoldersAnimator.SetTrigger("Blocked");
+            HoldersAnimator.Play("BlockImpact", AnimationLayer);
             return true;
         }
         return false;

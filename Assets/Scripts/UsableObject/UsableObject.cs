@@ -4,6 +4,21 @@ using UnityEngine.Rendering;
 
 public abstract class UsableObject : MonoBehaviour
 {
+    public enum ItemType
+    {
+        OneHandedWeaponDull,
+        OneHandedWeaponSharp,
+        TwoHandedWeaponDull,
+        TwoHandedWeaponSharp,
+        TwoHandedWeaponLong,
+        Legs,
+        TwoHandedFist,
+        OneHandedFist,
+        Shield,
+        Bow,
+        Crossbow,
+        None
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [SerializeField] protected GameObject Holder;
     [SerializeField] protected CharacterStatController HolderStatController;
@@ -12,6 +27,7 @@ public abstract class UsableObject : MonoBehaviour
     [SerializeField] protected Animator HoldersAnimator;
     [SerializeField] protected GameObject AudioHolder;
     [SerializeField] protected Dictionary<string, AudioSource> SoundEffects;
+    [SerializeField] public ItemType CurrentItemType { get; protected set; }
     [SerializeField] public bool IsTwoHanded;
     [SerializeField] public virtual int AnimationLayer { get; set; }
     protected virtual Dictionary<int, string> AnimationStateNamesAttack { get; set; }
@@ -20,7 +36,8 @@ public abstract class UsableObject : MonoBehaviour
         get 
         {
             AnimatorStateInfo stateInfoWeapon = HoldersAnimator.GetCurrentAnimatorStateInfo(AnimationLayer);
-
+            //Debug.Log(AnimationLayer);
+            //Debug.Log(stateInfoWeapon.shortNameHash);
             return AnimationStateNamesAttack.ContainsKey(stateInfoWeapon.shortNameHash)
                 ? (AnimationStateNamesAttack[stateInfoWeapon.shortNameHash], true)
                 : ("None", false);
@@ -45,7 +62,8 @@ public abstract class UsableObject : MonoBehaviour
         HoldersSortingGroup = Holder.GetComponent<SortingGroup>();
         HoldersAnimator = Holder.GetComponent<Animator>();
 
-        AnimationLayer = HoldersAnimator.GetLayerIndex(gameObject.name);//probably better to make it a tag than name
+        Debug.Log(gameObject.name);
+        AnimationLayer = HoldersAnimator.GetLayerIndex(CurrentItemType.ToString());//probably better to make it a tag than name
         AudioHolder = transform.Find("AudioSfx").gameObject;
         SoundEffects = new Dictionary<string, AudioSource>();
 

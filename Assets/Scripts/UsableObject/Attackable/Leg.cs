@@ -7,9 +7,9 @@ public class Leg : PrimaryAttackable
     {
         { Animator.StringToHash("LegKick"), "LegKick" },
     };
-
     void Start()
     {
+        CurrentItemType = ItemType.Legs;
         base.Start();
 
         ActionCoolDownAttackPrimary = 2f;
@@ -19,6 +19,23 @@ public class Leg : PrimaryAttackable
     {
         UpdateTimers();
         CollisionWithWeaponInAttackStateCheck();
+
+        StopMovingWhenAttack();
+    }
+
+    private void StopMovingWhenAttack()
+    {
+        //Debug.Log(HolderController.StopMoving);
+        //Debug.Log(PlayingAttackAnimationCheck.Item2);
+        //Debug.Log(PlayingAttackAnimationCheck.Item1);
+        if(HolderController.StopMoving == false && PlayingAttackAnimationCheck.Item2)
+        {
+            HolderController.StopMoving = true;
+        }
+        else if(HolderController.StopMoving == true && !PlayingAttackAnimationCheck.Item2)
+        {
+            HolderController.StopMoving = false;
+        }
     }
 
     override protected void ResetAttackPrimary()
@@ -70,6 +87,7 @@ public class Leg : PrimaryAttackable
         CurrentState = CurrentStateOfAction.None;
         EnemiesHitWhileInAttackState.Clear();
         HoldersSortingGroup.sortingOrder = 0;
+
         ResetAttackPrimary();
     }
 

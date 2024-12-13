@@ -29,7 +29,7 @@ public class PlayerController : BaseCharacterController
     }
     void FixedUpdate()
     {
-        Move();
+        HandleMovement();
     }
 
     void LateUpdate()
@@ -73,7 +73,6 @@ public class PlayerController : BaseCharacterController
 
         //changing animation state from moving to jump when in air
         HandleAnimations();
-
     }
 
     //------------------------------- handle user input Attack/Block
@@ -168,28 +167,37 @@ public class PlayerController : BaseCharacterController
     {
         if (IsHolding)
         {
-          
-            if (ItemInHand && ItemInHand.GetComponent<SpriteRenderer>().enabled)
-            {
-                ArmRightPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmRightPivot.transform.rotation.x, ArmRightPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
-            }
-            else if(ArmRightPivot.transform.rotation.z != -3.7f)
-            {
-                BringDownToNormal(ArmRightPivot);
-            }
+            RotatePlayerSpriteRightHand(angleToMouse);
 
-            if ((ItemInHand && ItemInHand.GetComponent<UsableObject>().IsTwoHanded && ItemInHand.GetComponent<SpriteRenderer>().enabled) || (ItemInHandLeft && ItemInHandLeft.GetComponent<SpriteRenderer>().enabled))
-            {
-                ArmLeftPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmLeftPivot.transform.rotation.x, ArmLeftPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
-            }
-            else if (ArmLeftPivot.transform.rotation.z != -3.7f)
-            {
-                BringDownToNormal(ArmLeftPivot);
-            }
+            RotatePlayerSpriteLeftHand(angleToMouse);
         }
         else if(ArmRightPivot.transform.rotation.z != -3.7 || ArmLeftPivot.transform.rotation.z != -3.7f)
         {
             BringDownToNormal(ArmRightPivot);
+            BringDownToNormal(ArmLeftPivot);
+        }
+    }
+
+    private void RotatePlayerSpriteRightHand(float angleToMouse)
+    {
+        if (ItemInHand && ItemInHand.GetComponent<SpriteRenderer>().enabled)
+        {
+            ArmRightPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmRightPivot.transform.rotation.x, ArmRightPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
+        }
+        else if (ArmRightPivot.transform.rotation.z != -3.7f)
+        {
+            BringDownToNormal(ArmRightPivot);
+        }
+    }
+
+    private void RotatePlayerSpriteLeftHand(float angleToMouse)
+    {
+        if ((ItemInHand && ItemInHand.GetComponent<UsableObject>().IsTwoHanded && ItemInHand.GetComponent<SpriteRenderer>().enabled) || (ItemInHandLeft && ItemInHandLeft.GetComponent<SpriteRenderer>().enabled))
+        {
+            ArmLeftPivot.transform.rotation = Quaternion.Euler(new Vector3(ArmLeftPivot.transform.rotation.x, ArmLeftPivot.transform.rotation.y, angleToMouse / (180 / (maxHandRotation + maxTorsoRotation))));
+        }
+        else if (ArmLeftPivot.transform.rotation.z != -3.7f)
+        {
             BringDownToNormal(ArmLeftPivot);
         }
     }
@@ -223,13 +231,18 @@ public class PlayerController : BaseCharacterController
         }
     }
     //-------------------------------- moving 
-    private void Move()
-    {
-        float Speed = (Running && characterStatController.ReduceStamina(Time.fixedDeltaTime * 10f)) ? baseSpeed * runSpeedModifier : baseSpeed;
 
+    private void HandleMovement()
+    {
+        float SpeedValue = (Running && characterStatController.ReduceStamina(Time.fixedDeltaTime * 10f)) ? baseSpeed * runSpeedModifier : baseSpeed;
+        //Debug.Log(StopMoving);
+        Move(SpeedValue);
+    }
+    protected override void Move(float SpeedValue)
+    {
         if (Grounded)
         {
-            rb.linearVelocity = new Vector2(HorizontalMoveDirection * Speed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(HorizontalMoveDirection * SpeedValue, rb.linearVelocity.y);
         }
         else
         {

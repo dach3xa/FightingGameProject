@@ -629,7 +629,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 6
+  m_SortingOrder: 7
   m_Sprite: {fileID: 21300000, guid: 34272c8167610d3469216e8ffc8d9066, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -648,7 +648,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8590692593756841702}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -694,7 +694,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8590692593756841702}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82a7e6dba96feff4cb84acc7d0c76afb, type: 3}
   m_Name: 
@@ -706,12 +706,3 @@ MonoBehaviour:
   HoldersAnimator: {fileID: 0}
   AudioHolder: {fileID: 1850311367236129183}
   IsTwoHanded: 1
-  BaseAttackValue: 30
-  BaseStaminaReduceValue: 20
-  PrimaryAttackMultiplier: 1.2
-  SecondaryAttackMultiplier: 0.8
-  WidthOfWeapon: 0.3
-  HeightOfWeapon: 2
-  WeaponOffsetAngle: 90
-  EnemiesHitWhileInAttackState: []
-  currentComboAnimationAttackPrimary: 0

@@ -55,6 +55,8 @@ public abstract class BaseCharacterController : MonoBehaviour
     [SerializeField] protected float maxTorsoRotation = 50f;
     [SerializeField] protected float maxHandRotation = 40f;
     [SerializeField] protected float maxHeadRotation = 20f;
+
+    public bool StopMoving { get; set; } = false;
     public bool IsOutOfJumps { get { return JumpCount == MaxJumpCount; } }
 
     protected void Start()
@@ -264,6 +266,7 @@ public abstract class BaseCharacterController : MonoBehaviour
         Debug.Log(itemName);
         var ItemToTake = Items.FirstOrDefault(item => item.name == itemName);
         Debug.Log(ItemToTake);
+        Debug.Log(ItemToTake?.GetComponent<UsableObject>());
         if (ItemToTake.GetComponent<UsableObject>() is Shield)
         {
             TakeShield(ItemToTake);
@@ -301,6 +304,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void TakeTwoHandedWeapon(GameObject TwoHandedWeapon)
     {
+        Debug.Log("Taking two handed weapon!");
         if (ItemInHand != null || ItemInHandLeft != null)
         {
             DisablePreviousItem(ItemInHand);
@@ -369,14 +373,17 @@ public abstract class BaseCharacterController : MonoBehaviour
             {
                 TakeItem("TwoHandedFist");
             }
-
-            return;//one handed fist here
+            else
+            {
+                TakeItem("OneHandedFist");
+            }
         }
 
         var currentWeapon = (WeaponMelee)ItemInHandScript;
 
         if (PrimaryOrSecondary == "Primary")
         {
+            Debug.Log("Attacking Primary!");
             currentWeapon.AttackPrimary();
         }
         else if (PrimaryOrSecondary == "Secondary")
@@ -491,4 +498,5 @@ public abstract class BaseCharacterController : MonoBehaviour
         DisablePreviousItem(item);
 
     }
+    protected abstract void Move(float SpeedValue);
 }

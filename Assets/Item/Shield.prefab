@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8590692593756841702
+--- !u!1 &3939886214414932066
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,10 +8,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 9146476175899845898}
-  - component: {fileID: 482735611608613085}
-  - component: {fileID: 2505796065209576537}
-  - component: {fileID: 7031797466635254525}
+  - component: {fileID: 7417515025923452955}
+  - component: {fileID: 1222331890752415764}
+  - component: {fileID: 400211317268083792}
+  - component: {fileID: 4380677196061653110}
   m_Layer: 11
   m_Name: Shield
   m_TagString: Weapon
@@ -19,29 +19,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &9146476175899845898
+--- !u!4 &7417515025923452955
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8590692593756841702}
+  m_GameObject: {fileID: 3939886214414932066}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.05378586, w: 0.99855256}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: -0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5007082488698512095}
+  - {fileID: 8138440880432198076}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 6.166}
---- !u!212 &482735611608613085
+--- !u!212 &1222331890752415764
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8590692593756841702}
+  m_GameObject: {fileID: 3939886214414932066}
   m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -90,13 +90,13 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &2505796065209576537
+--- !u!61 &400211317268083792
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8590692593756841702}
+  m_GameObject: {fileID: 3939886214414932066}
   m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
@@ -136,13 +136,13 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.15951616, y: 0.932878}
   m_EdgeRadius: 0
---- !u!114 &7031797466635254525
+--- !u!114 &4380677196061653110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8590692593756841702}
+  m_GameObject: {fileID: 3939886214414932066}
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 224c1d51019a51f47a54abb0341827fc, type: 3}
@@ -153,11 +153,11 @@ MonoBehaviour:
   HolderController: {fileID: 0}
   HoldersSortingGroup: {fileID: 0}
   HoldersAnimator: {fileID: 0}
-  AudioHolder: {fileID: 8930723989638792466}
+  AudioHolder: {fileID: 6466823264580256364}
   IsTwoHanded: 0
   FrontSprite: {fileID: 21300000, guid: 724d7cf2cad22374e95e82d0e8d27e0e, type: 3}
   BackSprite: {fileID: 21300000, guid: 327d5bbb63404c44a93b3f3e38aa8ac1, type: 3}
---- !u!1 &8930723989638792466
+--- !u!1 &6466823264580256364
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -165,7 +165,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5007082488698512095}
+  - component: {fileID: 8138440880432198076}
   m_Layer: 8
   m_Name: AudioSfx
   m_TagString: Untagged
@@ -173,18 +173,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5007082488698512095
+--- !u!4 &8138440880432198076
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8930723989638792466}
+  m_GameObject: {fileID: 6466823264580256364}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 9146476175899845898}
+  m_Father: {fileID: 7417515025923452955}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

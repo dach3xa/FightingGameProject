@@ -9,6 +9,7 @@ public class TwoHandedSword : WeaponMelee
 
     void Start()
     {
+        CurrentItemType = ItemType.TwoHandedWeaponSharp;
         base.Start();
         IsTwoHanded = true;
     }

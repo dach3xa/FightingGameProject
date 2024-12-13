@@ -9,6 +9,7 @@ TagManager:
   - Crosshair
   - Ground
   - Weapon
+  - Legs
   layers:
   - Default
   - TransparentFX
