@@ -105,7 +105,7 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
 
     public override bool AttacksClashed(GameObject EnemyWeapon)
     {
-        if(!(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist || EnemyWeapon.GetComponent<UsableObject>() is Leg))
+        if(!(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist || EnemyWeapon.GetComponent<UsableObject>() is Legs))
         {
             HoldersAnimator.SetTrigger("Blocked");
             Debug.Log("Melee Weapon Weapons clashed called!");

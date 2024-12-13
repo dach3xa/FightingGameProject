@@ -19,7 +19,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     [SerializeField] protected GameObject AudioHolder;
 
     [SerializeField] public GameObject Leg { get; protected set; }
-    [SerializeField] public Leg LegScript { get; protected set; }
+    [SerializeField] public Legs LegScript { get; protected set; }
 
     [SerializeField] public GameObject ItemInHand { get; protected set; }
     [SerializeField] public UsableObject ItemInHandScript { get; protected set; }
@@ -67,8 +67,8 @@ public abstract class BaseCharacterController : MonoBehaviour
         ArmRightPivot = transform.Find("TorsoPivot/Torso/ArmRightPivot").gameObject;
         ArmLeftPivot = transform.Find("TorsoPivot/Torso/ArmLeftPivot").gameObject;
 
-        Leg = transform.Find("GluteRight/RightCalf/LegKick").gameObject;
-        LegScript = Leg.GetComponent<Leg>();
+        Leg = transform.Find("GluteRight/RightCalf/Leg").gameObject;
+        LegScript = Leg.GetComponent<Legs>();
 
         ItemInHand = null;
         ItemInHandScript = null;
@@ -237,6 +237,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void SetItemInHandLeftActive()
     {
+        Debug.Log("Enabling item in hand left :" + ItemInHandLeft);
         ItemInHandLeft.GetComponent<SpriteRenderer>().enabled = true;
         ItemInHandLeft.GetComponent<UsableObject>().enabled = true;
         ItemInHandLeft.GetComponent<BoxCollider2D>().enabled = true;
@@ -298,7 +299,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
         animator.SetLayerWeight(ItemInHandLeftScript.AnimationLayer, 1);
 
-        animator.Play("NotHolding", ItemInHandLeftScript.AnimationLayer, 0f);
+        animator.Play("HoldingStart", ItemInHandLeftScript.AnimationLayer, 0f);
         animator.SetBool("IsHolding", true);
     }
 
@@ -315,8 +316,8 @@ public abstract class BaseCharacterController : MonoBehaviour
         ItemInHandScript = ItemInHand.GetComponent<UsableObject>();
 
         animator.SetLayerWeight(ItemInHandScript.AnimationLayer, 1);
-
-        animator.Play("NotHolding", ItemInHandScript.AnimationLayer, 0f);
+        Debug.Log(ItemInHandScript.AnimationLayer);
+        animator.Play("HoldingStart", ItemInHandScript.AnimationLayer, 0f);
         animator.SetBool("IsHolding", true);
     }
 
@@ -331,7 +332,8 @@ public abstract class BaseCharacterController : MonoBehaviour
 
         animator.SetLayerWeight(ItemInHandScript.AnimationLayer, 1);
 
-        animator.Play("NotHolding", ItemInHandScript.AnimationLayer, 0f);
+        Debug.Log(ItemInHandScript.AnimationLayer);
+        animator.Play("HoldingStart", ItemInHandScript.AnimationLayer, 0f);
         animator.SetBool("IsHolding", true);
     }
 
@@ -339,9 +341,12 @@ public abstract class BaseCharacterController : MonoBehaviour
     {
         if (itemInHand)
         {
-            itemInHand.GetComponent<UsableObject>().enabled = false;
+            UsableObject itemInHandScript = itemInHand.GetComponent<UsableObject>();
+
+            itemInHandScript.enabled = false;
             itemInHand.GetComponent<SpriteRenderer>().enabled = false;
             itemInHand.GetComponent<BoxCollider2D>().enabled = false;
+ 
 
             if (itemInHand == ItemInHand)
             {
@@ -353,8 +358,8 @@ public abstract class BaseCharacterController : MonoBehaviour
                 ItemInHandLeft = null;
                 ItemInHandLeftScript = null;
             }
-
-            animator.SetLayerWeight(animator.GetLayerIndex(itemInHand.name), 0);
+            Debug.Log(itemInHandScript.GetType().ToString());
+            animator.SetLayerWeight(animator.GetLayerIndex(itemInHandScript.GetType().ToString()), 0);
         }
     }
     //-----------------combat Actions------------------------

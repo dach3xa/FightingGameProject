@@ -203,9 +203,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.14910637
-  m_TransitionOffset: 0
-  m_ExitTime: 0.000000020573554
+  m_TransitionDuration: 0.14910638
+  m_TransitionOffset: 0.4570559
+  m_ExitTime: 0.6398786
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -5295,7 +5295,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: HoldingStartShield
+  m_Name: HoldingStart
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -5438,9 +5438,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.23499024
-  m_TransitionOffset: 0
-  m_ExitTime: 0.0068224757
+  m_TransitionDuration: 0.23499021
+  m_TransitionOffset: 0.4360015
+  m_ExitTime: 0.5154911
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0

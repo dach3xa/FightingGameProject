@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Leg : PrimaryAttackable
+public class Legs : PrimaryAttackable
 {
     protected override Dictionary<int, string> AnimationStateNamesAttack { get; set; } = new Dictionary<int, string>
     {
@@ -9,7 +9,6 @@ public class Leg : PrimaryAttackable
     };
     void Start()
     {
-        CurrentItemType = ItemType.Legs;
         base.Start();
 
         ActionCoolDownAttackPrimary = 2f;
@@ -46,7 +45,7 @@ public class Leg : PrimaryAttackable
 
     public override bool AttacksClashed(GameObject EnemyWeapon)
     {
-        if (EnemyWeapon.GetComponent<UsableObject>() is Leg)
+        if (EnemyWeapon.GetComponent<UsableObject>() is Legs)
         {
             EnemiesHitWhileInAttackState.Add(EnemyWeapon.transform.root.gameObject);
             HoldersAnimator.SetTrigger("Blocked");

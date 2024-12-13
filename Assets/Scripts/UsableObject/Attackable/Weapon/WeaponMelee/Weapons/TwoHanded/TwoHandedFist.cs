@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class TwoHandedFist : Fist
+public class TwoHandedFist : OneHandedFist
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
@@ -9,7 +9,6 @@ public class TwoHandedFist : Fist
     [SerializeField] private GameObject RightFist;
     void Start()
     {
-        CurrentItemType = ItemType.TwoHandedFist;
         base.Start();
         IsTwoHanded = true;
     }

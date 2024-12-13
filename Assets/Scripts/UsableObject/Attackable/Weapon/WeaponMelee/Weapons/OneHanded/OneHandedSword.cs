@@ -1,11 +1,10 @@
 using UnityEngine;
 
-public class OneHandedSword : WeaponMelee
+public class OneHandedWeaponSharp : WeaponMelee
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        CurrentItemType = ItemType.OneHandedWeaponSharp;
         base.Start();
         IsTwoHanded = false;
 

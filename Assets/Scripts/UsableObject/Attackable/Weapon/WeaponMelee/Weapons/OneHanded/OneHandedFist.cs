@@ -1,12 +1,11 @@
 using System.Collections;
 using UnityEngine;
-public class Fist : WeaponMelee
+public class OneHandedFist : WeaponMelee
 {
     protected float CoolDownStopsHolding = 4f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        CurrentItemType = ItemType.OneHandedFist;
         base.Start();
         IsTwoHanded = false;
         //attack and stamina
@@ -70,7 +69,7 @@ public class Fist : WeaponMelee
         Debug.Log("TwoHandedFist Weaponsclashed called!");
         Debug.Log(EnemyWeapon.GetComponent<UsableObject>());
 
-        if (EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist)
+        if (EnemyWeapon.GetComponent<UsableObject>() is OneHandedFist)
         {
             HoldersAnimator.SetTrigger("Blocked");
             EnemiesHitWhileInAttackState.Add(EnemyWeapon);
@@ -89,7 +88,7 @@ public class Fist : WeaponMelee
 
     public override bool BlockImpact(GameObject AttackingWeapon)
     {
-        if (AttackingWeapon.GetComponent<UsableObject>() is TwoHandedFist || AttackingWeapon.GetComponent<UsableObject>() is Leg)
+        if (AttackingWeapon.GetComponent<UsableObject>() is OneHandedFist || AttackingWeapon.GetComponent<UsableObject>() is Legs)
         {
             HoldersAnimator.Play("BlockImpact", AnimationLayer);
             return true;

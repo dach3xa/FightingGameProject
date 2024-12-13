@@ -4,12 +4,11 @@ using System.Collections;
 using UnityEngine.Rendering;
 using NUnit.Framework;
 
-public class TwoHandedSword : WeaponMelee
+public class TwoHandedWeaponSharp : WeaponMelee
 {
 
     void Start()
     {
-        CurrentItemType = ItemType.TwoHandedWeaponSharp;
         base.Start();
         IsTwoHanded = true;
     }

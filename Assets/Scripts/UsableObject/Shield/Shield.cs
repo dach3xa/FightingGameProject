@@ -14,7 +14,6 @@ public class Shield : UsableObject, IBlockable
     protected float StaminaReduceValueWhenBlocking = 20f;
     void Start()
     {
-        CurrentItemType = ItemType.Shield;
         base.Start();
     }
 
@@ -56,7 +55,7 @@ public class Shield : UsableObject, IBlockable
     public bool BlockImpact(GameObject AttackingWeapon)
     {
         HoldersAnimator.SetTrigger("Blocked");
-        if (AttackingWeapon.GetComponent<UsableObject>() is Leg)
+        if (AttackingWeapon.GetComponent<UsableObject>() is Legs)
         {
             BlockEnd();
             return false;

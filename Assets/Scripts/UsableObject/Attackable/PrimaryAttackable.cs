@@ -85,7 +85,7 @@ public abstract class PrimaryAttackable : UsableObject, IAttackablePrimary
 
     public virtual bool AttacksClashed(GameObject EnemyWeapon)
     {
-        if (!(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist || EnemyWeapon.GetComponent<UsableObject>() is Leg))
+        if (!(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist || EnemyWeapon.GetComponent<UsableObject>() is Legs))
         {
             HoldersAnimator.SetTrigger("Blocked");
             ResetAttackPrimary();
