@@ -41,7 +41,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
 
         float WeaponDistence = (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider * 2;
         DistenceToEnemyStartAttacking = (WeaponDistence > 1.5f) ? (float)ItemInHand?.GetComponent<WeaponMelee>().HeightOfCollider : 1.5f;
-        Debug.Log(DistenceToEnemyStartAttacking);
+        //Debug.Log(DistenceToEnemyStartAttacking);
     }
 
     //-------- Enemy Saw State Behvaiour -----
@@ -76,8 +76,8 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         while (currentState == CurrentEnemyState.Combat)
         {
             CombatBehaviour(ref AttackCoolDownTimer);
-            yield return new WaitForSeconds(0.1f);
-            AttackCoolDownTimer += 0.1f;
+            yield return new WaitForSeconds(0.05f);
+            AttackCoolDownTimer += 0.05f;
         }
     }
     protected override void CombatBehaviour(ref float AttackCoolDownTimer)

@@ -90,13 +90,13 @@ public abstract class NPCCharacterController : BaseCharacterController
             Vector2 DirectionToEnemy = (Enemy.gameObject.transform.position - transform.position).normalized;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, DirectionToEnemy, EnemySeeRadius, ~RaycastIgnoreLayer);
             float AngleToEnemy = Vector2.Angle(HeadPivot.transform.right * (transform.localScale.x / 3), DirectionToEnemy);
-            Debug.Log(AngleToEnemy);
-            if(hit) Debug.Log(hit.collider.gameObject);
-            Debug.Log(Enemy.gameObject);
+            //Debug.Log(AngleToEnemy);
+            //if(hit) Debug.Log(hit.collider.gameObject);
+            //Debug.Log(Enemy.gameObject);
 
             if (Mathf.Abs(AngleToEnemy) <= FOV && hit && hit.collider.gameObject == Enemy.gameObject)
             {
-                Debug.Log("Saw in FOV!");
+                //Debug.Log("Saw in FOV!");
                 EnemyFocused = Enemy.gameObject;
                 StateManager(CurrentEnemyState.SawEnemy);
             }
@@ -138,7 +138,7 @@ public abstract class NPCCharacterController : BaseCharacterController
 
     protected void StateManager(CurrentEnemyState state)
     {
-        Debug.Log($"StateManager called with state: {state}");
+        //Debug.Log($"StateManager called with state: {state}");
         switch (state)
         {
             case CurrentEnemyState.Idle:

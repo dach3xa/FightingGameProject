@@ -316,7 +316,7 @@ public abstract class BaseCharacterController : MonoBehaviour
         ItemInHandScript = ItemInHand.GetComponent<UsableObject>();
 
         animator.SetLayerWeight(ItemInHandScript.AnimationLayer, 1);
-        Debug.Log(ItemInHandScript.AnimationLayer);
+        //Debug.Log(ItemInHandScript.AnimationLayer);
         animator.Play("HoldingStart", ItemInHandScript.AnimationLayer, 0f);
         animator.SetBool("IsHolding", true);
     }
@@ -388,7 +388,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
         if (PrimaryOrSecondary == "Primary")
         {
-            Debug.Log("Attacking Primary!");
+            //Debug.Log("Attacking Primary!");
             currentWeapon.AttackPrimary();
         }
         else if (PrimaryOrSecondary == "Secondary")
@@ -401,6 +401,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     {
         if (ItemInHandScript && ItemInHandScript.PlayingAttackAnimationCheck.Item2)
         {
+            Debug.Log(ItemInHandScript.PlayingAttackAnimationCheck.Item1);
             return;
         }
 

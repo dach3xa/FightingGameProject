@@ -30,8 +30,15 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
     public float comboCoolDownTimer { get; protected set; } = 0;
     public float comboMaxTime { get; protected set; } = 0.8f;
 
+    public float CounterAttackCoolDownTimer { get; protected set; } = 0;
+    public float CounterAttackMaxTime { get; protected set; } = 0.3f;
+
+    public float BlockCoolDownTimer { get; protected set; } = 0;
+    public float BlockMaxTime { get; protected set; } = 0.5f;
+
     public float ActionCoolDownBlock { get; protected set; } = 1.1f;
     public float ActionCoolDownAttackSecondary { get; protected set; } = 1.3f;
+
 
     public override bool IsAttacking { get { return CurrentState == CurrentStateOfAction.AttackingPrimary || CurrentState == CurrentStateOfAction.AttackingSecondary; } }
 
@@ -67,8 +74,14 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
         comboCoolDownTimer = 0;
         comboMaxTime = 0.8f;
 
+        CounterAttackCoolDownTimer = 0;
+        CounterAttackMaxTime = 0.25f;
+
+        BlockCoolDownTimer = 0;
+        BlockMaxTime = 0.5f;
+
         ActionCoolDownTimer = 0;
-        ActionCoolDownBlock = 1.1f;
+        ActionCoolDownBlock = 1.2f;
         ActionCoolDownAttackPrimary = 1.3f;
         ActionCoolDownAttackSecondary = 1.3f;
 
@@ -79,6 +92,8 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
     {
         ActionCoolDownTimer += Time.deltaTime;
         comboCoolDownTimer += Time.deltaTime;
+        CounterAttackCoolDownTimer += Time.deltaTime;
+        BlockCoolDownTimer += Time.deltaTime;
     }
 
     void OnDrawGizmos()
@@ -108,7 +123,7 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
         if(!(EnemyWeapon.GetComponent<UsableObject>() is TwoHandedFist || EnemyWeapon.GetComponent<UsableObject>() is Legs))
         {
             HoldersAnimator.SetTrigger("Blocked");
-            Debug.Log("Melee Weapon Weapons clashed called!");
+            //Debug.Log("Melee Weapon Weapons clashed called!");
             ResetAttackPrimary();
         }
         else
@@ -126,16 +141,24 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
     {
         if ((currentComboAnimationAttackPrimary > 0 && comboCoolDownTimer >= comboMaxTime))
         {
-            Debug.Log("Resetting combo!");
-            Debug.Log("comboCoolDownTimer : " + comboCoolDownTimer);
+            //Debug.Log("Resetting combo!");
+            //Debug.Log("comboCoolDownTimer : " + comboCoolDownTimer);
             ResetAttackPrimary();
         }
     }
 
+    protected override void AttackBlocked()
+    {
+        BlockCoolDownTimer = 0;
+        base.AttackBlocked();
+    }
+
     protected override void ResetAttackPrimary()
     {
+        //Debug.Log("resetting block cooldown! ");
         currentPlayingComboAnimationAttackPrimary = 0;
         currentComboAnimationAttackPrimary = 0;
+
         CurrentState = CurrentStateOfAction.None;
         HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", currentComboAnimationAttackPrimary);
     }
@@ -143,10 +166,11 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
     //------------Actions----------------------------
     public override void AttackPrimary()
     {
-        Debug.Log(ActionCoolDownTimer);
-        if ((comboCoolDownTimer <= comboMaxTime && currentComboAnimationAttackPrimary < 3 && currentComboAnimationAttackPrimary > 0 || ActionCoolDownTimer > ActionCoolDownAttackPrimary) && HolderStatController.Stamina > 20f * 1.2f)
+
+        //Debug.Log(ActionCoolDownTimer);
+        if ((CounterAttackCoolDownTimer <= CounterAttackMaxTime || comboCoolDownTimer <= comboMaxTime && currentComboAnimationAttackPrimary < 3 && currentComboAnimationAttackPrimary > 0 || ActionCoolDownTimer > ActionCoolDownAttackPrimary) && HolderStatController.Stamina > 20f * 1.2f)
         {
-            Debug.Log("Attacking primary inside!");
+            //Debug.Log("Attacking primary inside!");
             HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", ++currentComboAnimationAttackPrimary);
             ActionCoolDownTimer = 0;
             comboCoolDownTimer = 0;
@@ -155,9 +179,10 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
 
     public void AttackSecondary()
     {
-        if (ActionCoolDownTimer >= ActionCoolDownAttackSecondary && HolderStatController.Stamina > 20f * 0.8f && CurrentState == CurrentStateOfAction.None)
+        //Debug.Log(CounterAttackCoolDownTimer + " : " + CounterAttackMaxTime);
+        if ((CounterAttackCoolDownTimer <= CounterAttackMaxTime || ActionCoolDownTimer >= ActionCoolDownAttackSecondary) && HolderStatController.Stamina > 20f * 0.8f && CurrentState == CurrentStateOfAction.None)
         {
-            Debug.Log(ActionCoolDownTimer);
+            //Debug.Log(ActionCoolDownTimer);
             ActionCoolDownTimer = 0;
             HoldersAnimator.SetTrigger("WeaponMeleeSecondaryAttack");
         }
@@ -165,7 +190,7 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
 
     public void CancelAttack()
     {
-        Debug.Log("Trying to Cancel the event!");
+        //Debug.Log("Trying to Cancel the event!");
         if (CurrentState == CurrentStateOfAction.None && currentComboAnimationAttackPrimary < 2 && PlayingAttackAnimationCheck.Item2)
         {
             HoldersAnimator.SetBool("StopAttack", true);
@@ -185,7 +210,9 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
 
     public void BlockStart()
     {
-        if (ActionCoolDownTimer >= ActionCoolDownBlock && HolderStatController.Stamina > 0 && CurrentState == CurrentStateOfAction.None)
+        Debug.Log(Holder.name + " " + BlockCoolDownTimer + " : " + BlockMaxTime);
+        Debug.Log(CurrentState);
+        if ((ActionCoolDownTimer >= ActionCoolDownBlock || BlockCoolDownTimer <= BlockMaxTime) && HolderStatController.Stamina > 0 && CurrentState == CurrentStateOfAction.None)
         {
             HoldersAnimator.SetTrigger("Block");
             ActionCoolDownTimer = -0.3f;
@@ -194,8 +221,10 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
 
     public virtual bool BlockImpact(GameObject AttackingWeapon)
     {
-        Debug.Log($"block impact! {gameObject.name}");
+        //Debug.Log($"block impact! {gameObject.name}");
         HoldersAnimator.Play("BlockImpact", AnimationLayer);
+
+        CounterAttackCoolDownTimer = 0;
         return true;
     }
 

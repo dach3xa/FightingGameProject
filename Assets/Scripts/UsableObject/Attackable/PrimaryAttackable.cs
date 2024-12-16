@@ -64,12 +64,7 @@ public abstract class PrimaryAttackable : UsableObject, IAttackablePrimary
 
             if (!enemyStats.RecieveAttack(Damage, gameObject))
             {
-                HoldersAnimator.SetTrigger("Blocked");
-                SoundEffects["WeaponMeleeHitSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
-                SoundEffects["WeaponMeleeHitSound"].Play();
-                ActionCoolDownTimer = 0;
-
-                ResetAttackPrimary();
+                AttackBlocked();
             }
             else
             {
@@ -79,6 +74,16 @@ public abstract class PrimaryAttackable : UsableObject, IAttackablePrimary
 
             EnemiesHitWhileInAttackState.Add(collision.gameObject);
         }
+    }
+
+    protected virtual void AttackBlocked()
+    {
+        HoldersAnimator.SetTrigger("Blocked");
+        SoundEffects["WeaponMeleeHitSound"].pitch = UnityEngine.Random.Range(0.8f, 1.2f);
+        SoundEffects["WeaponMeleeHitSound"].Play();
+        ActionCoolDownTimer = 0;
+
+        ResetAttackPrimary();
     }
 
     abstract protected void ResetAttackPrimary();
