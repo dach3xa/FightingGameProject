@@ -1,8 +1,7 @@
-using NUnit.Framework;
-using System.Collections;
+using Assets.Scripts.UsableObject.Attackable.Weapon.WeaponMelee.AdditionalInfo;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 public class CharacterStatController : MonoBehaviour
@@ -14,6 +13,7 @@ public class CharacterStatController : MonoBehaviour
         Exhausted,
         Dead
     }
+
     CurrentStatState statState = CurrentStatState.normal;
 
     [SerializeField] public float Health;
@@ -35,6 +35,7 @@ public class CharacterStatController : MonoBehaviour
     [SerializeField] BoxCollider2D collider;
 
     [SerializeField] protected List<GameObject> BodyParts;
+    [SerializeField] private Dictionary<string, float> Limbs;
 
     protected void Start()
     {
@@ -43,6 +44,7 @@ public class CharacterStatController : MonoBehaviour
         animator = GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody2D>();
         collider = GetComponent<BoxCollider2D>();
+        Limbs = new Dictionary<string, float> { { "Head", 0.6f }, { "ArmRight", 1.2f }, { "ArmLeft", 1.2f } };
 
         Health = baseHealth;
         Stamina = baseStamina;
@@ -83,12 +85,12 @@ public class CharacterStatController : MonoBehaviour
     }
     //---------------------- current stat state controller
 
-    protected void CurrentStatStateController(CurrentStatState NewStatState, GameObject AdditionalInfo = null)
+    protected void CurrentStatStateController(CurrentStatState NewStatState, AdditionalInfo AdditionalInfo = null)
     {
         switch (NewStatState) 
         {
             case CurrentStatState.Exhausted:
-                this.statState = NewStatState;
+                this.statState = CurrentStatState.Exhausted;
                 break;
             case CurrentStatState.Damaged:
                 ChangeCurrentStatStateToDamaged(AdditionalInfo);
@@ -97,11 +99,11 @@ public class CharacterStatController : MonoBehaviour
                 ChangeCurrentStatStateToNormal();
                 break;
             case CurrentStatState.Dead:
-                ChangeCurrentStatStateToDead();
+                ChangeCurrentStatStateToDead(AdditionalInfo);
                 break;
         }
     }
-    protected void ChangeCurrentStatStateToDamaged(GameObject AdditionalInfo)
+    protected void ChangeCurrentStatStateToDamaged(AdditionalInfo AdditionalInfo)
     {
         ResetAllAnimationParameters();
 
@@ -109,16 +111,31 @@ public class CharacterStatController : MonoBehaviour
         CharacterControllerScript.ItemInHandLeft?.GetComponent<UsableObject>().OnHolderDamaged();
 
         CharacterControllerScript.enabled = false;
-        if(CharacterControllerScript.ItemInHand) CharacterControllerScript.ItemInHand.GetComponent<UsableObject>().enabled = false;
-        if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.ItemInHandLeft.GetComponent<UsableObject>().enabled = false;
+
+        if (CharacterControllerScript.ItemInHand) 
+        {
+            if(CharacterControllerScript.ItemInHand.GetComponent<UsableObject>() is WeaponMelee weaponInHand)
+                weaponInHand.AttackStateEnd();
+
+            CharacterControllerScript.ItemInHand.GetComponent<UsableObject>().enabled = false;
+        }
+
+        if (CharacterControllerScript.ItemInHandLeft) 
+        {
+            if (CharacterControllerScript.ItemInHandLeft.GetComponent<UsableObject>() is WeaponMelee weaponInHand)
+                weaponInHand.AttackStateEnd();
+
+            CharacterControllerScript.ItemInHandLeft.GetComponent<UsableObject>().enabled = false;
+        }
 
         HandleDamagedAnimation(AdditionalInfo);
         this.statState = CurrentStatState.Damaged;
     }
 
     //-------handle damage animation-------------------------------------
-   protected void HandleDamagedAnimation(GameObject AttackerWeapon)
+   protected void HandleDamagedAnimation(AdditionalInfo AdditionalInfo)
    {
+        GameObject AttackerWeapon = AdditionalInfo.AttackerWeapon;
         BaseCharacterController attackerController = AttackerWeapon.transform.root.GetComponent<BaseCharacterController>();
         if (Mathf.Sign(gameObject.transform.localScale.x) == Mathf.Sign(-AttackerWeapon.transform.lossyScale.x))
         {
@@ -136,14 +153,14 @@ public class CharacterStatController : MonoBehaviour
     {
         var currentAttackingAnimation = AttackerWeapon.GetComponent<UsableObject>().PlayingAttackAnimationCheck.Item1;
 
+        if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
+        {
+            animator.Play("Damaged", 0, 0f);
+            return;
+        }
+
         if (currentAttackingAnimation == "PrimaryAttack" || currentAttackingAnimation == "SecondaryAttack" || currentAttackingAnimation == "LegKick")
         {
-            if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
-            {
-                animator.Play("Damaged", 0, 0f);
-                return;
-            }
-
             animator.Play("DamagedBottom", 0, 0f);
         }
         else
@@ -156,14 +173,14 @@ public class CharacterStatController : MonoBehaviour
     {
         var currentAttackingAnimation = AttackerWeapon.GetComponent<UsableObject>().PlayingAttackAnimationCheck.Item1;
 
+        if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
+        {
+            animator.Play("DamagedBottom", 0, 0f);
+            return;
+        }
+
         if (currentAttackingAnimation == "SecondaryAttack" || currentAttackingAnimation == "PrimaryAttack2" || currentAttackingAnimation == "LegKick")
         {
-            if (AttackerWeapon.GetComponent<UsableObject>() is TwoHandedFist)
-            {
-                animator.Play("DamagedBottom", 0, 0f);
-                return;
-            }
-
             animator.Play("Damaged", 0, 0f);
         }
         else
@@ -209,7 +226,7 @@ public class CharacterStatController : MonoBehaviour
         this.statState = CurrentStatState.normal;
     }
 
-    protected void ChangeCurrentStatStateToDead()
+    protected void ChangeCurrentStatStateToDead(AdditionalInfo AdditionalInfo)
     {
         CharacterControllerScript.enabled = false;
         animator.enabled = false;
@@ -219,16 +236,40 @@ public class CharacterStatController : MonoBehaviour
         gameObject.layer = 0;
         this.enabled = false;
 
+
         TurnOnRigidbodyAndJointsForBodyParts();
         DropPrimaryItems();
         ApplyForceToBodyParts();
+
+        if (ShouldChopOffRandomPartCheck(AdditionalInfo))
+        {
+            ChopOffRandomPart();
+        }
+    }
+
+    protected bool ShouldChopOffRandomPartCheck(AdditionalInfo AdditionalInfo)
+    {
+        GameObject AttackerWeapon = AdditionalInfo.AttackerWeapon;
+        bool WasLastAttackDirect = AdditionalInfo.WasLastAttackDirect.Value;
+
+        var attackerWeaponMeleeScript = AttackerWeapon.GetComponent<WeaponMelee>();
+        if (attackerWeaponMeleeScript == null)
+            return false;
+
+        var randomNum = Random.Range(0f, 1f);
+        Debug.Log(randomNum);
+
+        return attackerWeaponMeleeScript.PlayingAttackAnimationCheck.Item2
+                && randomNum < attackerWeaponMeleeScript.Sharpness
+                && attackerWeaponMeleeScript.PlayingAttackAnimationCheck.Item1.ToLower().Contains("primaryattack")
+                && WasLastAttackDirect;
     }
 
     protected void TurnOnRigidbodyAndJointsForBodyParts()
     {
         foreach(var BodyPart in BodyParts)
         {
-            Debug.Log("Enabling body part : " + BodyPart.name);
+            //Debug.Log("Enabling body part : " + BodyPart.name);
             BodyPart.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
             BodyPart.GetComponent<CapsuleCollider2D>().enabled = true;
 
@@ -261,6 +302,24 @@ public class CharacterStatController : MonoBehaviour
         if(CharacterControllerScript.ItemInHandLeft) CharacterControllerScript.DropItem(CharacterControllerScript.ItemInHandLeft);
     }
 
+    protected void ChopOffRandomPart()
+    {
+        var limbName = Limbs.Keys.ToList()[Random.Range(0, Limbs.Keys.Count)];
+        var randomLimb = BodyParts.FirstOrDefault(bodyPart => bodyPart.name == limbName);
+        randomLimb.transform.parent = null;
+        randomLimb.GetComponent<Rigidbody2D>().AddForce(new Vector2(DamageDirectionHorizontal, 0).normalized * 2500f * Limbs[limbName], ForceMode2D.Force);
+        randomLimb.GetComponent<HingeJoint2D>().enabled = false;
+
+        if(limbName.ToLower() == "head")
+        {
+            randomLimb.GetComponent<SpriteRenderer>().sortingOrder = 8;
+            var headArmor = randomLimb.transform.Find("HeadArmor");
+
+            if (headArmor != null)
+                headArmor.GetComponent<SpriteRenderer>().sortingOrder = 9;
+        }
+    }
+
     //--------------------------- updating stats
     protected void UpdateStamina()
     {
@@ -289,7 +348,7 @@ public class CharacterStatController : MonoBehaviour
         }
         else if (Health <= 0)
         {
-            CurrentStatStateController(CurrentStatState.Dead);
+            Health = 0;
         }
     }
 
@@ -297,72 +356,80 @@ public class CharacterStatController : MonoBehaviour
 
     public bool RecieveAttack(float damage, GameObject AttackerWeapon)
     {
-        Debug.Log("Recieved the attack from " + AttackerWeapon.name);
+        //Debug.Log("Recieved the attack from " + AttackerWeapon.name);
 
         WeaponMelee ItemInHand = CharacterControllerScript.ItemInHand?.GetComponent<WeaponMelee>();
         Shield ItemInHandLeft = CharacterControllerScript.ItemInHandLeft?.GetComponent<Shield>();
-        bool IsAttackingOrBlockingRightHand = (ItemInHand && (ItemInHand.CurrentState == CurrentStateOfAction.Blocking || ItemInHand.CurrentState == CurrentStateOfAction.AttackingSecondary || ItemInHand.CurrentState == CurrentStateOfAction.AttackingPrimary));
+
+        bool IsAttackingOrBlockingRightHand = ItemInHand && (ItemInHand.CurrentState == CurrentStateOfAction.Blocking || ItemInHand.CurrentState == CurrentStateOfAction.AttackingSecondary || ItemInHand.CurrentState == CurrentStateOfAction.AttackingPrimary);
         bool IsBlockingLeftHand = ItemInHandLeft && (ItemInHandLeft.CurrentState == CurrentStateOfAction.Blocking);
 
-        if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && Mathf.Sign(gameObject.transform.localScale.x) == Mathf.Sign(-AttackerWeapon.transform.lossyScale.x))
+        Vector2 toAttacker = AttackerWeapon.transform.position - transform.position;
+        bool amFacingAttacker =
+            Mathf.Sign(toAttacker.x) == Mathf.Sign(transform.localScale.x);
+
+        if (CharacterControllerScript.IsHolding && (IsAttackingOrBlockingRightHand || IsBlockingLeftHand) && amFacingAttacker)
         {
-            if(CheckAttackingOrBlockingCurrentWeapon(IsAttackingOrBlockingRightHand, IsBlockingLeftHand, ItemInHand, ItemInHandLeft, damage, AttackerWeapon))
+            if(CheckAttackingOrBlockingCurrentWeapon(IsAttackingOrBlockingRightHand, IsBlockingLeftHand, ItemInHand, ItemInHandLeft, AttackerWeapon))
             {
+                TakeDamage(damage, AttackerWeapon);
                 return true;
             }
 
-            Health -= damage / 10;
-            Stamina -= damage / 2;
-            Mathf.Clamp(Health, 0, baseHealth);
-            Mathf.Clamp(Stamina, 0, baseStamina);
+            TakeDamage(damage / 10, AttackerWeapon, IsDirectDamage: false);
+
+            ReduceStamina(damage / 2);
 
             return false;
         }
         else
         {
-            Debug.Log("Recieved damage from " + AttackerWeapon.name);
+            //Debug.Log("Recieved damage from " + AttackerWeapon.name);
             TakeDamage(damage, AttackerWeapon);
             return true;
         }
     }
 
-    protected bool CheckAttackingOrBlockingCurrentWeapon(bool IsAttackingOrBlockingRightHand, bool IsBlockingLeftHand, WeaponMelee ItemInHand, Shield ItemInHandLeft, float damage, GameObject AttackerWeapon)
+    protected bool CheckAttackingOrBlockingCurrentWeapon(bool IsAttackingOrBlockingRightHand, bool IsBlockingLeftHand, WeaponMelee ItemInHand, Shield ItemInHandLeft, GameObject AttackerWeapon)
     {
-        if (IsBlockingLeftHand)
+        if (IsBlockingLeftHand)//shield
         {
             if (ItemInHandLeft.BlockImpact(AttackerWeapon) == false)
             {
-                TakeDamage(damage, AttackerWeapon);
                 return true;
             }
         }
         else if (IsAttackingOrBlockingRightHand)
         {
-            Debug.Log("Blocking or attacking right hand!");
+            //Debug.Log("Blocking or attacking right hand!");
             if (ItemInHand.CurrentState == CurrentStateOfAction.Blocking)
             {
                 if (ItemInHand.BlockImpact(AttackerWeapon) == false)
                 {
-                    Debug.Log("Weapon couldnt block take damage");
-                    TakeDamage(damage, AttackerWeapon);
                     return true;
                 }
             }
             else if (ItemInHand.AttacksClashed(AttackerWeapon) == false)
             {
-                Debug.Log("Weapons clashed take damage");
-                TakeDamage(damage, AttackerWeapon);
                 return true;
             }
         }
         return false;
     }
 
-    public void TakeDamage(float damage, GameObject AttackerWeapon)
+    public void TakeDamage(float damage, GameObject AttackerWeapon, bool IsDirectDamage = true)
     {
-        CurrentStatStateController(CurrentStatState.Damaged, AttackerWeapon);
-        DamageDirectionHorizontal = Mathf.Sign(AttackerWeapon.transform.lossyScale.x);
+        if (IsDirectDamage)
+        {
+            CurrentStatStateController(CurrentStatState.Damaged, new AdditionalInfo(AttackerWeapon));
+        }
+        DamageDirectionHorizontal = Mathf.Sign(AttackerWeapon?.transform.lossyScale.x ?? 0f);
+
         Health -= damage;
+        if(Health < 0)
+        {
+            CurrentStatStateController(CurrentStatState.Dead, new AdditionalInfo(AttackerWeapon, IsDirectDamage));
+        }
         Mathf.Clamp(Health, 0, baseHealth);
     }
 

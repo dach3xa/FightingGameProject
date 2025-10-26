@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-
 public class Legs : PrimaryAttackable
 {
     protected override Dictionary<int, string> AnimationStateNamesAttack { get; set; } = new Dictionary<int, string>
@@ -64,8 +63,8 @@ public class Legs : PrimaryAttackable
     {
         if (ActionCoolDownTimer > ActionCoolDownAttackPrimary && HolderStatController.Stamina > 20f * 1.2f)
         {
-            Debug.Log("Kick!");
-            Debug.Log(ActionCoolDownTimer + " : " + ActionCoolDownAttackPrimary);
+            //Debug.Log("Kick!");
+            //Debug.Log(ActionCoolDownTimer + " : " + ActionCoolDownAttackPrimary);
 
             HoldersAnimator.SetBool("Kick", true);
             ActionCoolDownTimer = 0;
@@ -81,6 +80,7 @@ public class Legs : PrimaryAttackable
         SoundEffects["WeaponMeleeSlashSound"].Play();
         ActionCoolDownTimer = 0;
     }
+
     public override void AttackStateEnd()
     {
         CurrentState = CurrentStateOfAction.None;

@@ -1,7 +1,5 @@
 using UnityEngine;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 
 public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
@@ -12,7 +10,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
     abstract protected float AttackCoolDownRangeMin { get; set; }
     abstract protected float AttackCoolDownRangeMax { get; set; }
     abstract protected float DistenceToEnemyStartBlocking { get; set; }
-    protected float DistenceToEnemyStartAttacking { get; set; }
+    protected override float DistenceToEnemyStartAttacking { get; set; }
     abstract protected float BlockChance { get; set; }
     protected void Start()
     {
@@ -53,11 +51,12 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
             yield return new WaitForSeconds(0.1f);
         }
     }
+
     protected override void EnemySawBehaviour()
     {
         if (!IsHolding)
         {
-            GameObject[] MeleeWeapons = Items.Where(Item => Item.GetComponent<WeaponMelee>() != null).ToArray();
+            GameObject[] MeleeWeapons = Items.Values.Where(Item => Item.GetComponent<WeaponMelee>() != null).ToArray();
             TakeItem(MeleeWeapons[UnityEngine.Random.Range(0, MeleeWeapons.Length)].name);
         }
         ChangeMovePositionEnemySaw();
@@ -134,7 +133,7 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
         }
     }
 
-    private void AttackPattern( Shield EnemyShield, WeaponMelee currentWeapon, ref float AttackCoolDownTimer)
+    private void AttackPattern(Shield EnemyShield, WeaponMelee currentWeapon, ref float AttackCoolDownTimer)
     {
         float AttackCoolDown = UnityEngine.Random.Range(AttackCoolDownRangeMin, AttackCoolDownRangeMax);
         float AttackTypeChance = UnityEngine.Random.Range(0, 1f);
@@ -149,7 +148,6 @@ public abstract class NPCCharacterControllerMeleeWeapon : NPCCharacterController
             }
             else if (currentWeapon && characterStatController.Stamina > 60f && AttackCoolDownTimer > AttackCoolDown && (AttackTypeChance > 0.3f || currentWeapon.currentComboAnimationAttackPrimary > 0))
             {
-
                 Attack("Primary");
                 if (currentWeapon.currentComboAnimationAttackPrimary >= 3)
                 {

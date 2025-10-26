@@ -39,14 +39,15 @@ public abstract class PrimaryAttackable : UsableObject, IAttackablePrimary
     {
         if (IsAttacking)
         {
-            var EnemyHitColliders = DrawingCollider();
+            var EnemyHitCollider = DrawingCollider();
 
-            if (EnemyHitColliders)
+            if (EnemyHitCollider)
             {
-                CheckEnemyHit(EnemyHitColliders);
+                CheckEnemyHit(EnemyHitCollider);
             }
         }
     }
+
     virtual protected Collider2D DrawingCollider()
     {
         float offsetAngle = ColliderOffsetAngle;
@@ -58,8 +59,15 @@ public abstract class PrimaryAttackable : UsableObject, IAttackablePrimary
 
     protected void CheckEnemyHit(Collider2D collision)
     {
-        if (!EnemiesHitWhileInAttackState.Contains(collision.gameObject))
+        Vector2 toAttacker = collision.gameObject.transform.position - Holder.transform.position;
+
+        bool amFacingAttacker =
+            Mathf.Sign(toAttacker.x) == Mathf.Sign(Holder.transform.localScale.x);
+        //Debug.Log($"SHOULD HIT THE ENEMY!!! amFacingAttacker : {amFacingAttacker} notalreadyattacked: {!EnemiesHitWhileInAttackState.Contains(collision.gameObject)}");
+
+        if (!EnemiesHitWhileInAttackState.Contains(collision.gameObject) && amFacingAttacker)
         {
+            //Debug.Log("HIT THE ENEMY!!!");
             CharacterStatController enemyStats = collision.gameObject.GetComponent<CharacterStatController>();
 
             if (!enemyStats.RecieveAttack(Damage, gameObject))

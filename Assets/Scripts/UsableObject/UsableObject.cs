@@ -46,7 +46,7 @@ public abstract class UsableObject : MonoBehaviour
         HoldersSortingGroup = Holder.GetComponent<SortingGroup>();
         HoldersAnimator = Holder.GetComponent<Animator>();
 
-        Debug.Log(this.GetType().Name);
+        //Debug.Log(this.GetType().Name);
         AnimationLayer = HoldersAnimator.GetLayerIndex(this.GetType().Name);//probably better to make it a tag than name
         AudioHolder = transform.Find("AudioSfx").gameObject;
         SoundEffects = new Dictionary<string, AudioSource>();

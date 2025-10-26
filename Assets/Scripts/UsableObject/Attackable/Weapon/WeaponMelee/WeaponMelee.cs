@@ -1,8 +1,6 @@
 using UnityEngine;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.Rendering;
 public enum CurrentStateOfAction
 {
     None,
@@ -31,17 +29,18 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
     public float comboMaxTime { get; protected set; } = 0.8f;
 
     public float CounterAttackCoolDownTimer { get; protected set; } = 0;
-    public float CounterAttackMaxTime { get; protected set; } = 0.3f;
+    public float CounterAttackMaxTime { get; protected set; } = 0.4f;
 
     public float BlockCoolDownTimer { get; protected set; } = 0;
     public float BlockMaxTime { get; protected set; } = 0.5f;
 
     public float ActionCoolDownBlock { get; protected set; } = 1.1f;
     public float ActionCoolDownAttackSecondary { get; protected set; } = 1.3f;
+    public abstract float Sharpness { get; set; }
 
 
     public override bool IsAttacking { get { return CurrentState == CurrentStateOfAction.AttackingPrimary || CurrentState == CurrentStateOfAction.AttackingSecondary; } }
-
+    public bool IsBlocking { get { return CurrentState == CurrentStateOfAction.Blocking; } }
     public override float Damage
     {
         get
@@ -174,6 +173,7 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
             HoldersAnimator.SetInteger("WeaponMeleePrimaryAttackComboCount", ++currentComboAnimationAttackPrimary);
             ActionCoolDownTimer = 0;
             comboCoolDownTimer = 0;
+            CounterAttackCoolDownTimer += CounterAttackMaxTime;
         }
     }
 
@@ -184,6 +184,7 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
         {
             //Debug.Log(ActionCoolDownTimer);
             ActionCoolDownTimer = 0;
+            CounterAttackCoolDownTimer += CounterAttackMaxTime;
             HoldersAnimator.SetTrigger("WeaponMeleeSecondaryAttack");
         }
     }
@@ -202,18 +203,18 @@ public abstract class WeaponMelee : PrimaryAttackable, IBlockable
         }
     }
 
-    protected IEnumerator ResetBool(string triggerName)
+    protected IEnumerator ResetBool(string boolName)
     {
         yield return new WaitForSeconds(0.4f);
-        HoldersAnimator.ResetTrigger(triggerName);
+        HoldersAnimator.SetBool(boolName, false);
     }
 
     public void BlockStart()
     {
-        Debug.Log(Holder.name + " " + BlockCoolDownTimer + " : " + BlockMaxTime);
-        Debug.Log(CurrentState);
+        //Debug.Log(Holder.name + " " + BlockCoolDownTimer + " : " + BlockMaxTime);
         if ((ActionCoolDownTimer >= ActionCoolDownBlock || BlockCoolDownTimer <= BlockMaxTime) && HolderStatController.Stamina > 0 && CurrentState == CurrentStateOfAction.None)
         {
+            //Debug.Log("BLOCK!");
             HoldersAnimator.SetTrigger("Block");
             ActionCoolDownTimer = -0.3f;
         }

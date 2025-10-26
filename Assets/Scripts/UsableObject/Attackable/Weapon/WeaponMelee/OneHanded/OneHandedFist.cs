@@ -3,6 +3,7 @@ using UnityEngine;
 public class OneHandedFist : WeaponMelee
 {
     protected float CoolDownStopsHolding = 4f;
+    public override float Sharpness { get; set; } = 0f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -32,7 +33,7 @@ public class OneHandedFist : WeaponMelee
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(ActionCoolDownTimer);
+        //Debug.Log(ActionCoolDownTimer);
 
         UpdateTimers();
         ResetComboCheck();
@@ -66,8 +67,8 @@ public class OneHandedFist : WeaponMelee
     //---------Weapon Clashed-----------------
     public override bool AttacksClashed(GameObject EnemyWeapon)
     {
-        Debug.Log("TwoHandedFist Weaponsclashed called!");
-        Debug.Log(EnemyWeapon.GetComponent<UsableObject>());
+        //Debug.Log("TwoHandedFist Weaponsclashed called!");
+        //Debug.Log(EnemyWeapon.GetComponent<UsableObject>());
 
         if (EnemyWeapon.GetComponent<UsableObject>() is OneHandedFist)
         {

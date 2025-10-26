@@ -1,12 +1,13 @@
-using UnityEngine;
-
 public class OneHandedWeaponSharp : WeaponMelee
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public override float Sharpness { get; set; } = 0.2f;
     void Start()
     {
         base.Start();
         IsTwoHanded = false;
+        Sharpness = 0.3f;
+        Sharpness = 0.3f;
 
         //attack and stamina
         BaseAttackValue = 20f;

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 
 public abstract class NPCCharacterController : BaseCharacterController
@@ -14,6 +13,7 @@ public abstract class NPCCharacterController : BaseCharacterController
 
     Vector2 LookDirection;
     public float FOV { get; protected set; } = 60f;
+    protected virtual float DistenceToEnemyStartAttacking { get; set; }
 
     [SerializeField] protected float TimerUntilStopsSeeing = 0f;
     [SerializeField] protected float EnemySawForgetTime = 20f;
@@ -36,7 +36,7 @@ public abstract class NPCCharacterController : BaseCharacterController
         base.Start();
         airVelocity = 100f;
         StateManager(CurrentEnemyState.Idle);
-        InvokeRepeating("CheckForEnemies", 0, 0.2f);
+        InvokeRepeating(nameof(CheckForEnemies), 0, 0.2f);
     }
 
     //-------------------collision stuff----------------------------------
@@ -55,7 +55,7 @@ public abstract class NPCCharacterController : BaseCharacterController
         foreach (ContactPoint2D contact in collision.contacts)
         {
             float RoundedMoveDirectionX = (MoveDirection.x > 0) ? Mathf.Ceil(MoveDirection.x) : Mathf.Floor(MoveDirection.x);
-            if (contact.normal.x == -RoundedMoveDirectionX && contact.normal.x != 0 && !IsOutOfJumps)
+            if (contact.normal.x == -RoundedMoveDirectionX && contact.normal.x != 0 && !IsOutOfJumps && DistenceToMovePosition > 1)
             {
                 Jump();
                 break;
@@ -100,7 +100,7 @@ public abstract class NPCCharacterController : BaseCharacterController
                 EnemyFocused = Enemy.gameObject;
                 StateManager(CurrentEnemyState.SawEnemy);
             }
-            else if (Vector2.Distance(transform.position, Enemy.gameObject.transform.position) < 3f)
+            else if (Vector2.Distance(transform.position, Enemy.gameObject.transform.position) < 4f)
             {
                 EnemyFocused = Enemy.gameObject;
                 StateManager(CurrentEnemyState.SawEnemy);
@@ -120,9 +120,9 @@ public abstract class NPCCharacterController : BaseCharacterController
 
         if (hit.collider == null || hit.collider.gameObject != EnemyFocused)
         {
-            TimerUntilStopsSeeing -= 0.1f;
+            TimerUntilStopsSeeing -= 0.2f;
         }
-        else if (DistenceToEnemy < 3f)
+        else if (DistenceToEnemy < DistenceToEnemyStartAttacking)
         {
             StateManager(CurrentEnemyState.Combat);
         }

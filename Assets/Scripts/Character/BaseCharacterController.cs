@@ -1,9 +1,5 @@
 using UnityEngine;
-using System;
-using System.Linq;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 
 public abstract class BaseCharacterController : MonoBehaviour
 {
@@ -27,7 +23,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     [SerializeField] public GameObject ItemInHandLeft { get; protected set; }
     [SerializeField] public UsableObject ItemInHandLeftScript { get; protected set; }
 
-    [SerializeField] public List<GameObject> Items { get; protected set; }
+    [SerializeField] public Dictionary<string, GameObject> Items { get; protected set; }
     [SerializeField] public LayerMask EnemyLayer;
 
     protected CharacterStatController characterStatController;
@@ -36,8 +32,8 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected Animator animator;
 
-    [SerializeField]protected int JumpCount = 0;
-    [SerializeField]protected int MaxJumpCount = 1;
+    [SerializeField] protected int JumpCount = 0;
+    [SerializeField] protected int MaxJumpCount = 1;
 
     public float angleToTarget { get; protected set; }
     public float baseSpeed { get; set; } = 5f;
@@ -78,8 +74,8 @@ public abstract class BaseCharacterController : MonoBehaviour
         ItemHolderLeft = transform.Find("TorsoPivot/Torso/ArmLeftPivot/ArmLeft/ForeArmLeft/ItemHolder").gameObject;
         ItemHolder = transform.Find("TorsoPivot/Torso/ArmRightPivot/ArmRight/ForeArmRight/ItemHolder").gameObject;
 
-        Items = new List<GameObject>();
-        InitializeItemsList();
+        Items = new Dictionary<string, GameObject>();
+        InitializeItemsDictionary();
 
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -91,16 +87,16 @@ public abstract class BaseCharacterController : MonoBehaviour
     }
 
     //--------------------Initializing stuff------------------------------
-    protected void InitializeItemsList()
+    protected void InitializeItemsDictionary()
     {
         foreach (Transform item in ItemHolder.transform)
         {
-            Items.Add(item.gameObject);
+            Items.Add(item.gameObject.name, item.gameObject);
         }
 
         foreach (Transform item in ItemHolderLeft.transform)
         {
-            Items.Add(item.gameObject);
+            Items.Add(item.gameObject.name, item.gameObject);
         }
     }
 
@@ -141,19 +137,15 @@ public abstract class BaseCharacterController : MonoBehaviour
                         SoundEffects["JumpLandSound"].pitch = UnityEngine.Random.Range(0.7f, 1.2f);
                         SoundEffects["JumpLandSound"].Play();
                         JumpCount = 0;
-                        animator.SetBool("Jump", false);
-                        return;
                     }
-                    else
-                    {
-                        return;
-                    }
+
+                    return;
                 }
 
             }
-        }
 
-        Grounded = false;
+            Grounded = false;
+        }
     }
 
     //--------------animation events -------------------------
@@ -197,7 +189,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void WeaponBlockStart()
     {
-        Debug.Log("block Start");
+        //Debug.Log("block Start");
         IBlockable currentWeapon = (ItemInHandLeftScript is Shield)
                     ? (IBlockable)ItemInHandLeftScript
                     : (IBlockable)ItemInHandScript;
@@ -207,7 +199,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void WeaponBlockEnd()
     {
-        Debug.Log("block End");
+        //Debug.Log("block End");
         IBlockable currentWeapon = (ItemInHandLeftScript is Shield)
             ? (IBlockable)ItemInHandLeftScript
             : (IBlockable)ItemInHandScript;
@@ -227,6 +219,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
         characterStatController.ReduceStamina(staminaReduce);
     }
+
     //----Item animation events----
     protected void SetItemInHandActive()
     {
@@ -237,17 +230,19 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void SetItemInHandLeftActive()
     {
-        Debug.Log("Enabling item in hand left :" + ItemInHandLeft);
+        //Debug.Log("Enabling item in hand left :" + ItemInHandLeft);
         ItemInHandLeft.GetComponent<SpriteRenderer>().enabled = true;
         ItemInHandLeft.GetComponent<UsableObject>().enabled = true;
         ItemInHandLeft.GetComponent<BoxCollider2D>().enabled = true;
     }
+
     //----Movement animation events----
     protected void PlayStepSoundEffect()
     {
         SoundEffects["SteppingSound"].pitch = UnityEngine.Random.Range(0.7f, 1.2f);
         SoundEffects["SteppingSound"].Play();
     }
+
     //-----------------movement stuff---------------------------------
     public void Jump()
     {
@@ -255,7 +250,6 @@ public abstract class BaseCharacterController : MonoBehaviour
         {
             SoundEffects["JumpStartSound"].Play();
             float jumpForce = (Moving) ? baseJumpForce * 0.8f : baseJumpForce;
-            animator.SetBool("Jump", true);
             rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
             JumpCount++;
         }
@@ -264,10 +258,10 @@ public abstract class BaseCharacterController : MonoBehaviour
     //---------------------Taking Item------------------------------
     protected virtual void TakeItem(string itemName)
     {
-        Debug.Log(itemName);
-        var ItemToTake = Items.FirstOrDefault(item => item.name == itemName);
-        Debug.Log(ItemToTake);
-        Debug.Log(ItemToTake?.GetComponent<UsableObject>());
+        //Debug.Log(itemName);
+        var ItemToTake = Items[itemName];
+        //Debug.Log(ItemToTake);
+        //Debug.Log(ItemToTake?.GetComponent<UsableObject>());
         if (ItemToTake.GetComponent<UsableObject>() is Shield)
         {
             TakeShield(ItemToTake);
@@ -305,10 +299,13 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void TakeTwoHandedWeapon(GameObject TwoHandedWeapon)
     {
-        Debug.Log("Taking two handed weapon!");
-        if (ItemInHand != null || ItemInHandLeft != null)
+        //Debug.Log("Taking two handed weapon!");
+        if (ItemInHand != null)
         {
             DisablePreviousItem(ItemInHand);
+        }
+        if(ItemInHandLeft != null)
+        {
             DisablePreviousItem(ItemInHandLeft);
         }
 
@@ -332,7 +329,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
         animator.SetLayerWeight(ItemInHandScript.AnimationLayer, 1);
 
-        Debug.Log(ItemInHandScript.AnimationLayer);
+        //Debug.Log(ItemInHandScript.AnimationLayer);
         animator.Play("HoldingStart", ItemInHandScript.AnimationLayer, 0f);
         animator.SetBool("IsHolding", true);
     }
@@ -347,7 +344,6 @@ public abstract class BaseCharacterController : MonoBehaviour
             itemInHand.GetComponent<SpriteRenderer>().enabled = false;
             itemInHand.GetComponent<BoxCollider2D>().enabled = false;
  
-
             if (itemInHand == ItemInHand)
             {
                 ItemInHand = null;
@@ -358,7 +354,8 @@ public abstract class BaseCharacterController : MonoBehaviour
                 ItemInHandLeft = null;
                 ItemInHandLeftScript = null;
             }
-            Debug.Log(itemInHandScript.GetType().ToString());
+
+            //Debug.Log(itemInHandScript.GetType().ToString());
             animator.SetLayerWeight(animator.GetLayerIndex(itemInHandScript.GetType().ToString()), 0);
         }
     }
@@ -367,7 +364,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     protected void Attack(string PrimaryOrSecondary)
     {
         var Shield = ItemInHandLeftScript as Shield;
-        if (Shield && Shield.CurrentState == CurrentStateOfAction.Blocking)
+        if (Shield != null && Shield.CurrentState == CurrentStateOfAction.Blocking)
         {
             return;
         }
@@ -401,7 +398,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     {
         if (ItemInHandScript && ItemInHandScript.PlayingAttackAnimationCheck.Item2)
         {
-            Debug.Log(ItemInHandScript.PlayingAttackAnimationCheck.Item1);
+            //Debug.Log(ItemInHandScript.PlayingAttackAnimationCheck.Item1);
             return;
         }
 
@@ -436,7 +433,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void CancelAttack()
     {
-        Debug.Log("Calling the cancel event!");
+        //Debug.Log("Calling the cancel event!");
         var currentWeapon = (WeaponMelee)ItemInHandScript;
 
         currentWeapon?.CancelAttack();
@@ -444,7 +441,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     protected void Kick()
     {
-        Debug.Log("kicking!");
+        //Debug.Log("kicking!");
         var Shield = ItemInHandLeftScript as Shield;
         if ((Shield && Shield.CurrentState == CurrentStateOfAction.Blocking) || (ItemInHandScript && ItemInHandScript.PlayingAttackAnimationCheck.Item2))
         {
@@ -456,7 +453,7 @@ public abstract class BaseCharacterController : MonoBehaviour
         {
             if((Attackable.ActionCoolDownTimer <= Attackable.ActionCoolDownAttackPrimary))
             {
-                Debug.Log("the timer for weapon didnt end!");
+                //Debug.Log("the timer for weapon didnt end!");
                 return;
             }
         }
@@ -470,8 +467,15 @@ public abstract class BaseCharacterController : MonoBehaviour
     {
         if (Grounded)
         {
-            animator.SetBool("Moving", Moving);
-            animator.SetBool("Running", Running);
+            if(animator.GetBool("Moving") != Moving)
+            {
+                animator.SetBool("Moving", Moving);
+            }
+
+            if(animator.GetBool("Running") != Running)
+            {
+                animator.SetBool("Running", Running);
+            }
 
             if(animator.GetBool("Jump") == true)
             {
@@ -480,7 +484,10 @@ public abstract class BaseCharacterController : MonoBehaviour
         }
         else
         {
-            animator.SetBool("Jump", true);
+            if(animator.GetBool("Jump") == false)
+            {
+                animator.SetBool("Jump", true);
+            }
         }
 
         if(animator.GetBool("IsHolding") != IsHolding)

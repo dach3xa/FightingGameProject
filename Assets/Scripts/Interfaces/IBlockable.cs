@@ -3,6 +3,7 @@ using UnityEngine;
 public interface IBlockable
 {
     public CurrentStateOfAction CurrentState { get; }
+    public bool IsBlocking { get; }
     public float ActionCoolDownTimer { get;  }
     public float ActionCoolDownBlock { get; }
 

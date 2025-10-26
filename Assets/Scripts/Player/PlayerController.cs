@@ -1,10 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class PlayerController : BaseCharacterController
 {
@@ -65,6 +60,7 @@ public class PlayerController : BaseCharacterController
         {
             Running = false;
         }
+
         //jumping logic
         if (Input.GetKeyDown(KeyCode.Space) && (MaxJumpCount - JumpCount > 1 || Grounded))
         {
@@ -89,13 +85,11 @@ public class PlayerController : BaseCharacterController
         }
         else if (Input.GetMouseButtonUp(1))
         {
-
             StopBlocking();
         }
 
         if (Input.GetAxis("Mouse ScrollWheel") > 0f)
         {
-            //stab em'
             Attack("Secondary");
         }
 

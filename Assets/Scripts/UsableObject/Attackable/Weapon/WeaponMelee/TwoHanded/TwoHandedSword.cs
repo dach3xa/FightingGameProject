@@ -1,12 +1,6 @@
-using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
-using UnityEngine.Rendering;
-using NUnit.Framework;
-
 public class TwoHandedWeaponSharp : WeaponMelee
 {
-
+    public override float Sharpness { get; set; } = 0.45f;
     void Start()
     {
         base.Start();

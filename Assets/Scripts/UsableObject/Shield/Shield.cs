@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class Shield : UsableObject, IBlockable
 {
@@ -10,6 +9,9 @@ public class Shield : UsableObject, IBlockable
     //cooldown
     public float ActionCoolDownTimer { get; protected set; } = 0;
     public float ActionCoolDownBlock { get; protected set; } = 1f;
+
+    public bool IsBlocking => CurrentState == CurrentStateOfAction.Blocking;
+
     //stamina
     protected float StaminaReduceValueWhenBlocking = 20f;
     void Start()
